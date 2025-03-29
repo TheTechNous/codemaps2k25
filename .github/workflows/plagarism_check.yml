@@ -481,9 +481,11 @@ jobs:
           from pathlib import Path
           
           def get_team_name(path):
-              """Extract team name from path, using the top-level folder name"""
+              """Extract team name from path, defaulting to codemaps2k25 for the root directory"""
               parts = Path(path).parts
-              return parts[0] if parts else path
+              if not parts or (len(parts) == 1 and not '/' in path):
+                  return 'codemaps2k25'
+              return parts[0]
           
           # Read the plagiarism results
           try:
