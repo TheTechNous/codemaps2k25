@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Notification Center</h1>
+    <div id="notifications">
+        {% for notification in notifications %}
+            <div class="notification {% if notification.is_read %}read{% else %}unread{% endif %}">
+                <p>{{ notification.message }}</p>
+                <small>{{ notification.timestamp }}</small>
+                <button onclick="markAsRead({{ notification.id }})">Mark as Read</button>
+                <button onclick="deleteNotification({{ notification.id }})">Delete</button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function markAsRead(notificationId) {
+            fetch(`/notifications/mark-as-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                }
+            });
+        }
+
+        function deleteNotification(notificationId) {
+            fetch(`/notifications/delete/${notificationId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                }
+            });
+        }
+    </script>
+{% endblock %}

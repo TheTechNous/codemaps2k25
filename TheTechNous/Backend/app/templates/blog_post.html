@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ post.description }}">
+    <meta name="keywords" content="{{ post.keywords }}">
+    <meta name="author" content="{{ post.author.username }}">
+    <title>{{ post.title }}</title>
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{{ post.title }}">
+    <meta property="og:description" content="{{ post.description }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ post.image_url }}">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "{{ post.title }}",
+        "description": "{{ post.description }}",
+        "author": {
+            "@type": "Person",
+            "name": "{{ post.author.username }}"
+        },
+        "datePublished": "{{ post.created_at }}",
+        "image": "{{ post.image_url }}",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{ request.build_absolute_uri }}"
+        }
+    }
+    </script>
+</head>
+<body>
+    <article>
+        <h1>{{ post.title }}</h1>
+        <p>{{ post.content }}</p>
+        <p>Author: {{ post.author.username }}</p>
+        <p>Published on: {{ post.created_at }}</p>
+    </article>
+</body>
+</html>
