@@ -42,7 +42,7 @@ jobs:
         id: detect-folders
         run: |
           # Get all directories (excluding .git and .github)
-          FOLDERS=$(find . -maxdepth 1 -type d -not -path "*/\.*" -not -path "." | sort)
+          FOLDERS=$(find . -maxdepth 1 -type d -not -path "*/\\.*" -not -path "." | sort)
           echo "Found solution folders: $FOLDERS"
           echo "solution_folders=$FOLDERS" >> $GITHUB_OUTPUT
 
@@ -66,23 +66,14 @@ jobs:
           # Initialize colorama
           init()
 
-          # Better solution for detecting folders
-          solution_folders = []
-          for item in Path('.').iterdir():
-              if item.is_dir() and not item.name.startswith('.') and item.name not in ['node_modules', 'plagiarism_results']:
-                  print(f"Found solution folder: {item.name}")
-                  solution_folders.append(item)
+          # Get all directories in current path (excluding .git and .github)
+          solution_folders = [d for d in Path('.').iterdir() 
+                              if d.is_dir() and not d.name.startswith('.')]
           
           print(f"Found {len(solution_folders)} solution folders: {[f.name for f in solution_folders]}")
           
           if len(solution_folders) < 2:
               print(f"{Fore.YELLOW}Not enough solution folders to compare. Skipping plagiarism check.{Style.RESET_ALL}")
-              # Create empty result files
-              with open("plagiarism_results.json", "w") as f:
-                  json.dump({
-                      'detailed_results': [],
-                      'team_plagiarism': {}
-                  }, f, indent=2)
               sys.exit(0)
 
           # Define languages to check for
@@ -371,6 +362,26 @@ jobs:
           
           # Clean up the temporary script file
           rm -f update_readme.py
+
+      - name: Update README with all logs
+        if: always()
+        run: |
+          # Append all logs to the README
+          echo "## 📝 Workflow Logs" >> README.md
+          echo "### Solution Folders Detected" >> README.md
+          echo "$FOLDERS" >> README.md
+
+          if [ -f "plagiarism_results.json" ]; then
+            echo "### Plagiarism Results" >> README.md
+            cat plagiarism_results.json >> README.md
+          fi
+
+          if [ -f "ai_detection_results.txt" ]; then
+            echo "### AI Detection Results" >> README.md
+            cat ai_detection_results.txt >> README.md
+          fi
+
+          echo "Logs appended to README.md successfully!"
 
       - name: Commit README changes
         if: success()
