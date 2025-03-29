@@ -295,11 +295,10 @@ jobs:
           # Retry logic for pushing changes to avoid conflicts
           for i in {1..5}; do
             git pull --rebase || true
-            git push && break || sleep 5
+            git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }} HEAD:main && break || sleep 5
           done
-        # Note: For private repositories, you may need to add a PAT token
-        # env:
-        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Comment on PR
         if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
