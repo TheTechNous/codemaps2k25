@@ -262,7 +262,7 @@ jobs:
 
       - name: Upload AI detection results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ai-detection-results
           path: ai_detection_results.txt
@@ -270,7 +270,7 @@ jobs:
 
       - name: Upload plagiarism results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: plagiarism-results
           path: |
