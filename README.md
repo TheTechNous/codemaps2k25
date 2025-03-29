@@ -21,20 +21,9 @@ This repository uses an automated plagiarism detection system that runs whenever
 
 Please ensure your submission represents your team's original work. Plagiarism will result in disqualification from the hackathon.
 
-## 📊 Plagiarism Results
-| Team | Plagiarism Percentage |
-|------|----------------------|
 
-## 🚀 Happy Coding!
-We're excited to see your innovative solutions! If you have any questions, please open an issue in this repository.
+## 📊 Plagiarism Analysis
 
-
-
-
-
-
-
-
-
+src --> 100.0% plagiarism detected (🚫 HIGH)
 
 
