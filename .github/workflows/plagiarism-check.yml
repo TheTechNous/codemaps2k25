@@ -218,6 +218,9 @@ jobs:
 
           # Run the plagiarism check script
           python check_plagiarism.py || echo "Plagiarism check script execution failed"
+          
+          # Clean up temporary files
+          rm -f check_plagiarism.py
 
       - name: Check for AI-generated code
         run: |
@@ -263,6 +266,9 @@ jobs:
 
           # Run the AI detection script
           python detect_ai_code.py || echo "AI detection script execution failed"
+          
+          # Clean up the temporary script file
+          rm -f detect_ai_code.py
 
       - name: Upload AI detection results
         if: always()
@@ -274,6 +280,18 @@ jobs:
 
       - name: Upload plagiarism results
         if: always()
+        run: |
+          # Create empty files if they don't exist to prevent upload failures
+          mkdir -p plagiarism_results
+          if [ ! -f "plagiarism_result_url.txt" ]; then
+            echo "No results available" > plagiarism_result_url.txt
+          fi
+          if [ ! -f "plagiarism_results.json" ]; then
+            echo '{"detailed_results":[],"team_plagiarism":{}}' > plagiarism_results.json
+          fi
+
+      - name: Upload results as artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: plagiarism-results
@@ -281,7 +299,7 @@ jobs:
             plagiarism_result_url.txt
             plagiarism_results.json
             plagiarism_results/
-          if-no-files-found: ignore
+          if-no-files-found: warn
 
       - name: Update README with plagiarism results
         if: success()
@@ -341,16 +359,27 @@ jobs:
           
           # Run the update script
           python update_readme.py
+          
+          # Clean up the temporary script file
+          rm -f update_readme.py
 
       - name: Commit README changes
         if: success()
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          
+          # Clean up any leftover files before committing
+          rm -f jplag.jar
+          rm -f ai_detection_results.txt 
+          
           git add README.md
           git commit -m "Update README with plagiarism results [skip ci]" || echo "No changes to commit"
-          # Use the built-in GITHUB_TOKEN instead of PAT_TOKEN
-          git push "https://${{ github.actor }}:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:main
+          
+          # Use the GitHub token with explicit authentication
+          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials
+          git config --global credential.helper store
+          git push origin HEAD:${GITHUB_REF_NAME}
 
       - name: Comment on PR
         if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
