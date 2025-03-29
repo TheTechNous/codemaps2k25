@@ -28,6 +28,7 @@ Please ensure your submission represents your team's original work. Plagiarism w
 
 
 
+
 ## 🚀 Happy Coding!
 We're excited to see your innovative solutions! If you have any questions, please open an issue in this repository.
 
@@ -41,3 +42,13 @@ We're excited to see your innovative solutions! If you have any questions, pleas
 
 
 
+## 📝 Workflow Logs
+### Solution Folders Detected
+
+### Plagiarism Results
+{"detailed_results":[],"team_plagiarism":{}}
+### AI Detection Results
+detect_ai_code.py
+Time-Table-Generotor-Final/Backend/tests/test_csp.py
+Time-Table-Generotor-Final/Backend/tests/test_app.py
+Time-Table-Generotor-Final/Backend/tests/test_model.py
