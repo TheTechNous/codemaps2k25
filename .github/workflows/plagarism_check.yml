@@ -66,14 +66,23 @@ jobs:
           # Initialize colorama
           init()
 
-          # Get all directories in current path (excluding .git and .github)
-          solution_folders = [d for d in Path('.').iterdir() 
-                              if d.is_dir() and not d.name.startswith('.')]
+          # Better solution for detecting folders
+          solution_folders = []
+          for item in Path('.').iterdir():
+              if item.is_dir() and not item.name.startswith('.') and item.name not in ['node_modules', 'plagiarism_results']:
+                  print(f"Found solution folder: {item.name}")
+                  solution_folders.append(item)
           
           print(f"Found {len(solution_folders)} solution folders: {[f.name for f in solution_folders]}")
           
           if len(solution_folders) < 2:
               print(f"{Fore.YELLOW}Not enough solution folders to compare. Skipping plagiarism check.{Style.RESET_ALL}")
+              # Create empty result files
+              with open("plagiarism_results.json", "w") as f:
+                  json.dump({
+                      'detailed_results': [],
+                      'team_plagiarism': {}
+                  }, f, indent=2)
               sys.exit(0)
 
           # Define languages to check for
