@@ -21,3 +21,6 @@ This repository uses an automated plagiarism detection system that runs whenever
 
 Please ensure your submission represents your team's original work. Plagiarism will result in disqualification from the hackathon.
 
+
+## 📊 Plagiarism Analysis
+
