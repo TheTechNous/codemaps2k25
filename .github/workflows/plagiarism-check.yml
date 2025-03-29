@@ -292,7 +292,11 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add README.md
           git commit -m "Update README with plagiarism results [skip ci]" || echo "No changes to commit"
-          git push
+          # Retry logic for pushing changes to avoid conflicts
+          for i in {1..5}; do
+            git pull --rebase || true
+            git push && break || sleep 5
+          done
         # Note: For private repositories, you may need to add a PAT token
         # env:
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
