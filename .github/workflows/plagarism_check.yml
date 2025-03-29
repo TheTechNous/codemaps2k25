@@ -74,22 +74,20 @@ jobs:
           
           print(f"Found {len(solution_folders)} solution folders: {[f.name for f in solution_folders]}")
           
-          if len(solution_folders) < 2:
-              print(f"{Fore.YELLOW}Not enough solution folders to compare. Proceeding with available folders.{Style.RESET_ALL}")
-
-          # Define languages to check for
+          # Define languages to check for with correct JPlag language options
           language_configs = [
               {"name": "python", "extensions": [".py"], "jplag_lang": "python3"},
               {"name": "java", "extensions": [".java"], "jplag_lang": "java"},
-              {"name": "javascript", "extensions": [".js", ".jsx"], "jplag_lang": "javascript"},
-              {"name": "typescript", "extensions": [".ts", ".tsx"], "jplag_lang": "javascript"},
+              {"name": "javascript", "extensions": [".js", ".jsx"], "jplag_lang": "text"},  # Use text mode for JS
+              {"name": "typescript", "extensions": [".ts", ".tsx"], "jplag_lang": "text"},  # Use text mode for TS
               {"name": "cpp", "extensions": [".cpp", ".hpp", ".cc", ".h"], "jplag_lang": "cpp"},
-              {"name": "c", "extensions": [".c", ".h"], "jplag_lang": "c/c++"},
+              {"name": "c", "extensions": [".c", ".h"], "jplag_lang": "cpp"},  # Use cpp for C
               {"name": "html", "extensions": [".html", ".htm"], "jplag_lang": "text"},
               {"name": "css", "extensions": [".css", ".scss", ".sass"], "jplag_lang": "text"}
           ]
 
-          # Dictionary to track team plagiarism percentages
+          # Dictionary to track plagiarism percentages
+          file_plagiarism = collections.defaultdict(list)
           team_plagiarism = collections.defaultdict(list)
           results = []
 
@@ -99,7 +97,7 @@ jobs:
               shutil.rmtree(results_dir)
           results_dir.mkdir()
 
-          # Function for custom code similarity check (for languages not well-supported by JPlag)
+          # Function for custom code similarity check
           def check_similarity(file1, file2):
               try:
                   with open(file1, 'r', encoding='utf-8', errors='ignore') as f1, \
@@ -124,7 +122,7 @@ jobs:
                   print(f"{Fore.RED}Error comparing {file1} and {file2}: {e}{Style.RESET_ALL}")
                   return 0
 
-          # Run enhanced plagiarism check for each language
+          # Run plagiarism check for each language
           for lang_config in language_configs:
               lang_name = lang_config["name"]
               lang_extensions = lang_config["extensions"]
@@ -148,81 +146,82 @@ jobs:
               output_dir = results_dir / lang_name
               output_dir.mkdir(exist_ok=True)
               
-              # Method 1: Use JPlag for supported languages (fallback is text mode)
-              try:
-                  # Run JPlag
-                  cmd = [
-                      "java", "-jar", "jplag.jar",
-                      "-l", jplag_lang,
-                      "-r", str(output_dir),
-                      "-m", "0%",  # Include all matches
-                      "."  # Search in current directory
-                  ]
-                  
-                  # Add language-specific exclude patterns for other languages
-                  for exclude_lang in language_configs:
-                      if exclude_lang["name"] != lang_name:
-                          for ext in exclude_lang["extensions"]:
-                              cmd.extend(["-x", f"**/*{ext}"])
-                  
-                  # Exclude .git and .github directories
-                  cmd.extend(["-x", ".git/**", "-x", ".github/**"])
-                  
-                  print(f"Running JPlag: {' '.join(cmd)}")
-                  process = subprocess.run(cmd, capture_output=True, text=True)
-                  
-                  if process.returncode != 0:
-                      print(f"{Fore.RED}Error running JPlag for {lang_name}:{Style.RESET_ALL}")
-                      print(process.stderr)
-                  else:
-                      print(f"{Fore.GREEN}JPlag completed for {lang_name}{Style.RESET_ALL}")
+              # Method 1: Use JPlag if we have multiple solution folders
+              if len(solution_folders) > 1:
+                  try:
+                      # Run JPlag with correct parameters (no % sign in threshold)
+                      cmd = [
+                          "java", "-jar", "jplag.jar",
+                          "-l", jplag_lang,
+                          "-r", str(output_dir),
+                          "-m", "0",  # Minimum match length as integer, not percentage
+                          "."  # Search in current directory
+                      ]
                       
-                      # Parse the results
-                      index_file = output_dir / "index.html"
-                      if index_file.exists():
-                          # Parse the HTML report
-                          with open(index_file, "r", encoding="utf-8") as f:
-                              soup = BeautifulSoup(f.read(), 'html.parser')
+                      # Add language-specific exclude patterns for other languages
+                      for exclude_lang in language_configs:
+                          if exclude_lang["name"] != lang_name:
+                              for ext in exclude_lang["extensions"]:
+                                  cmd.extend(["-x", f"**/*{ext}"])
+                      
+                      # Exclude .git and .github directories
+                      cmd.extend(["-x", ".git/**", "-x", ".github/**"])
+                      
+                      print(f"Running JPlag: {' '.join(cmd)}")
+                      process = subprocess.run(cmd, capture_output=True, text=True)
+                      
+                      if process.returncode != 0:
+                          print(f"{Fore.RED}Error running JPlag for {lang_name}:{Style.RESET_ALL}")
+                          print(process.stderr)
+                      else:
+                          print(f"{Fore.GREEN}JPlag completed for {lang_name}{Style.RESET_ALL}")
                           
-                          # Extract matches from the table
-                          table = soup.find('table')
-                          if table:
-                              rows = table.find_all('tr')[1:]  # Skip header row
+                          # Parse the results
+                          index_file = output_dir / "index.html"
+                          if index_file.exists():
+                              # Parse the HTML report
+                              with open(index_file, "r", encoding="utf-8") as f:
+                                  soup = BeautifulSoup(f.read(), 'html.parser')
                               
-                              for row in rows:
-                                  cells = row.find_all('td')
-                                  if len(cells) >= 3:
-                                      similarity_cell = cells[0]
-                                      similarity_text = similarity_cell.get_text(strip=True)
-                                      similarity_value = float(similarity_text.replace('%', ''))
-                                      
-                                      # Get team names from the comparison
-                                      team_links = cells[1:3]
-                                      team1 = team_links[0].get_text(strip=True).split('/')[0]
-                                      team2 = team_links[1].get_text(strip=True).split('/')[0]
-                                      
-                                      # Get link to the detailed comparison
-                                      comparison_link = team_links[0].find('a')['href'] if team_links[0].find('a') else ""
-                                      
-                                      # Add to team plagiarism scores
-                                      team_plagiarism[team1].append(similarity_value)
-                                      team_plagiarism[team2].append(similarity_value)
-                                      
-                                      # Add to results
-                                      results.append({
-                                          'language': lang_name,
-                                          'team1': team1,
-                                          'team2': team2,
-                                          'similarity': f"{similarity_value}%",
-                                          'match_url': f"{lang_name}/{comparison_link}",
-                                          'tool': 'JPlag'
-                                      })
-                          else:
-                              print(f"{Fore.YELLOW}No JPlag results found for {lang_name}.{Style.RESET_ALL}")
-              except Exception as e:
-                  print(f"{Fore.RED}Error in JPlag processing for {lang_name}: {e}{Style.RESET_ALL}")
+                              # Extract matches from the table
+                              table = soup.find('table')
+                              if table:
+                                  rows = table.find_all('tr')[1:]  # Skip header row
+                                  
+                                  for row in rows:
+                                      cells = row.find_all('td')
+                                      if len(cells) >= 3:
+                                          similarity_cell = cells[0]
+                                          similarity_text = similarity_cell.get_text(strip=True)
+                                          similarity_value = float(similarity_text.replace('%', ''))
+                                          
+                                          # Get team names from the comparison
+                                          team_links = cells[1:3]
+                                          team1 = team_links[0].get_text(strip=True).split('/')[0]
+                                          team2 = team_links[1].get_text(strip=True).split('/')[0]
+                                          
+                                          # Get link to the detailed comparison
+                                          comparison_link = team_links[0].find('a')['href'] if team_links[0].find('a') else ""
+                                          
+                                          # Add to team plagiarism scores
+                                          team_plagiarism[team1].append(similarity_value)
+                                          team_plagiarism[team2].append(similarity_value)
+                                          
+                                          # Add to results
+                                          results.append({
+                                              'language': lang_name,
+                                              'team1': team1,
+                                              'team2': team2,
+                                              'similarity': f"{similarity_value}%",
+                                              'match_url': f"{lang_name}/{comparison_link}",
+                                              'tool': 'JPlag'
+                                          })
+                              else:
+                                  print(f"{Fore.YELLOW}No JPlag results found for {lang_name}.{Style.RESET_ALL}")
+                  except Exception as e:
+                      print(f"{Fore.RED}Error in JPlag processing for {lang_name}: {e}{Style.RESET_ALL}")
               
-              # Method 2: Custom similarity check for all files (especially useful for languages not well-supported by JPlag)
+              # Method 2: Custom similarity check (works for both single and multiple folders)
               try:
                   print(f"{Fore.CYAN}Running custom similarity check for {lang_name}...{Style.RESET_ALL}")
                   
@@ -232,25 +231,52 @@ jobs:
                       folder_name = file.parts[0]  # Get the top-level folder name
                       folder_files[folder_name].append(file)
                   
-                  # Compare files between different folders
+                  # Store results for file comparisons
                   custom_results = []
-                  for folder1, files1 in folder_files.items():
-                      for folder2, files2 in folder_files.items():
-                          if folder1 >= folder2:  # Skip comparing a folder with itself and avoid duplicate comparisons
-                              continue
-                          
-                          # Compare each file from folder1 with each file from folder2
-                          for file1 in files1:
-                              for file2 in files2:
+                  
+                  # For multiple folders: compare files between different folders
+                  if len(solution_folders) > 1:
+                      for folder1, files1 in folder_files.items():
+                          for folder2, files2 in folder_files.items():
+                              if folder1 >= folder2:  # Skip comparing a folder with itself and avoid duplicate comparisons
+                                  continue
+                              
+                              # Compare each file from folder1 with each file from folder2
+                              for file1 in files1:
+                                  for file2 in files2:
+                                      similarity = check_similarity(file1, file2)
+                                      
+                                      if similarity >= 30:  # Only record significant matches
+                                          custom_results.append({
+                                              'file1': str(file1),
+                                              'file2': str(file2),
+                                              'similarity': similarity,
+                                              'folder1': folder1,
+                                              'folder2': folder2
+                                          })
+                  # For single folder: compare files within the same folder
+                  else:
+                      for folder, files in folder_files.items():
+                          # Compare files within the same folder
+                          for i, file1 in enumerate(files):
+                              for j, file2 in enumerate(files):
+                                  if i >= j:  # Skip comparing a file with itself and avoid duplicate comparisons
+                                      continue
+                                      
                                   similarity = check_similarity(file1, file2)
                                   
                                   if similarity >= 30:  # Only record significant matches
+                                      # Extract relative paths for more meaningful comparison
+                                      rel_path1 = "/".join(Path(file1).parts[1:])
+                                      rel_path2 = "/".join(Path(file2).parts[1:])
+                                      
                                       custom_results.append({
                                           'file1': str(file1),
                                           'file2': str(file2),
+                                          'rel_path1': rel_path1,
+                                          'rel_path2': rel_path2,
                                           'similarity': similarity,
-                                          'folder1': folder1,
-                                          'folder2': folder2
+                                          'folder': folder
                                       })
                   
                   # Sort results by similarity
@@ -263,46 +289,76 @@ jobs:
                   
                   # Add to overall results
                   if custom_results:
-                      # For each folder pair, use the highest similarity score
-                      folder_pairs = {}
-                      for res in custom_results:
-                          pair = (res['folder1'], res['folder2'])
-                          if pair not in folder_pairs or res['similarity'] > folder_pairs[pair]:
-                              folder_pairs[pair] = res['similarity']
-                      
-                      for (folder1, folder2), similarity in folder_pairs.items():
-                          # Add to team plagiarism scores
-                          team_plagiarism[folder1].append(similarity)
-                          team_plagiarism[folder2].append(similarity)
+                      if len(solution_folders) > 1:
+                          # For multiple folders: group by folder pairs
+                          folder_pairs = {}
+                          for res in custom_results:
+                              pair = (res['folder1'], res['folder2'])
+                              if pair not in folder_pairs or res['similarity'] > folder_pairs[pair]:
+                                  folder_pairs[pair] = res['similarity']
                           
-                          # Add to overall results
-                          results.append({
-                              'language': lang_name,
-                              'team1': folder1,
-                              'team2': folder2,
-                              'similarity': f"{similarity:.2f}%",
-                              'match_url': f"{lang_name}/custom_results.json",
-                              'tool': 'Custom'
-                          })
+                          for (folder1, folder2), similarity in folder_pairs.items():
+                              # Add to team plagiarism scores
+                              team_plagiarism[folder1].append(similarity)
+                              team_plagiarism[folder2].append(similarity)
+                              
+                              # Add to overall results
+                              results.append({
+                                  'language': lang_name,
+                                  'team1': folder1,
+                                  'team2': folder2,
+                                  'similarity': f"{similarity:.2f}%",
+                                  'match_url': f"{lang_name}/custom_results.json",
+                                  'tool': 'Custom'
+                              })
+                      else:
+                          # For single folder: group by file pairs
+                          # In this case we'll use relative file paths as identifiers
+                          for res in custom_results:
+                              # Add results using relative paths for clearer reporting
+                              results.append({
+                                  'language': lang_name,
+                                  'team1': res['rel_path1'],
+                                  'team2': res['rel_path2'], 
+                                  'similarity': f"{res['similarity']:.2f}%",
+                                  'match_url': f"{lang_name}/custom_results.json",
+                                  'tool': 'Custom'
+                              })
+                              
+                              # Add to file plagiarism scores
+                              file_plagiarism[res['rel_path1']].append(res['similarity'])
+                              file_plagiarism[res['rel_path2']].append(res['similarity'])
                           
                       print(f"{Fore.GREEN}Found {len(custom_results)} matches in custom check for {lang_name}{Style.RESET_ALL}")
               except Exception as e:
                   print(f"{Fore.RED}Error in custom similarity check for {lang_name}: {e}{Style.RESET_ALL}")
 
-          # Calculate the maximum plagiarism percentage for each team
-          team_plagiarism_max = {}
-          for team, scores in team_plagiarism.items():
-              if scores:
-                  # Use the maximum plagiarism score found for the team
-                  team_plagiarism_max[team] = max(scores)
-              else:
-                  team_plagiarism_max[team] = 0
+          # Calculate the maximum plagiarism percentage for reporting
+          plagiarism_max = {}
+          
+          # For multiple folders, report by team/folder
+          if len(solution_folders) > 1:
+              for team, scores in team_plagiarism.items():
+                  if scores:
+                      # Use the maximum plagiarism score found for the team
+                      plagiarism_max[team] = max(scores)
+                  else:
+                      plagiarism_max[team] = 0
+          # For single folder, report by file
+          else:
+              for file_path, scores in file_plagiarism.items():
+                  if scores:
+                      # Use the maximum plagiarism score found for the file
+                      plagiarism_max[file_path] = max(scores)
+                  else:
+                      plagiarism_max[file_path] = 0
 
           # Save the results as JSON
           with open("plagiarism_results.json", "w") as f:
               json.dump({
                   'detailed_results': results,
-                  'team_plagiarism': team_plagiarism_max
+                  'plagiarism_max': plagiarism_max,
+                  'is_single_folder': len(solution_folders) == 1
               }, f, indent=2)
 
           # Create a result URL file for GitHub Actions
@@ -315,10 +371,10 @@ jobs:
               for result in results:
                   print(f"{Fore.YELLOW}Language: {result['language']} - Match: {result['similarity']} between {result['team1']} and {result['team2']} (Tool: {result['tool']}){Style.RESET_ALL}")
               
-              print(f"\n{Fore.CYAN}Team Plagiarism Summary:{Style.RESET_ALL}")
-              for team, score in team_plagiarism_max.items():
+              print(f"\n{Fore.CYAN}Plagiarism Summary:{Style.RESET_ALL}")
+              for item, score in plagiarism_max.items():
                   status = f"{Fore.GREEN}Low" if score < 30 else f"{Fore.YELLOW}Medium" if score < 70 else f"{Fore.RED}High"
-                  print(f"{team}: {status} ({score}%){Style.RESET_ALL}")
+                  print(f"{item}: {status} ({score}%){Style.RESET_ALL}")
           else:
               print(f"\n{Fore.GREEN}No plagiarism detected!{Style.RESET_ALL}")
           EOL
@@ -401,7 +457,7 @@ jobs:
             echo "No results available" > plagiarism_result_url.txt
           fi
           if [ ! -f "plagiarism_results.json" ]; then
-            echo '{"detailed_results":[],"team_plagiarism":{}}' > plagiarism_results.json
+            echo '{"detailed_results":[],"plagiarism_max":{}}' > plagiarism_results.json
           fi
 
       - name: Upload results as artifacts
@@ -427,7 +483,8 @@ jobs:
           try:
               with open('plagiarism_results.json', 'r') as f:
                   data = json.load(f)
-                  team_plagiarism = data.get('team_plagiarism', {})
+                  plagiarism_max = data.get('plagiarism_max', {})
+                  is_single_folder = data.get('is_single_folder', False)
           except FileNotFoundError:
               print("No plagiarism results found. Skipping README update.")
               exit(0)
@@ -438,15 +495,15 @@ jobs:
           
           # Check if plagiarism results section already exists
           plagiarism_section = "## 📊 Plagiarism Results\n"
-          plagiarism_table = "| Team | Plagiarism Percentage |\n|------|----------------------|\n"
+          plagiarism_table = "| Item | Plagiarism Percentage |\n|------|----------------------|\n"
           
-          # Sort teams by plagiarism percentage (highest first)
-          sorted_teams = sorted(team_plagiarism.items(), key=lambda x: x[1], reverse=True)
+          # Sort items by plagiarism percentage (highest first)
+          sorted_items = sorted(plagiarism_max.items(), key=lambda x: x[1], reverse=True)
           
           # Generate the plagiarism table
-          for team, score in sorted_teams:
+          for item, score in sorted_items:
               status = "✅ Low" if score < 30 else "⚠️ Medium" if score < 70 else "🚫 High"
-              plagiarism_table += f"| {team} | {status} ({score}%) |\n"
+              plagiarism_table += f"| {item} | {status} ({score}%) |\n"
           
           # Generate the complete plagiarism section
           complete_section = f"{plagiarism_section}{plagiarism_table}\n"
@@ -526,19 +583,20 @@ jobs:
               if (fs.existsSync('plagiarism_results.json')) {
                 const data = JSON.parse(fs.readFileSync('plagiarism_results.json', 'utf8'));
                 const results = data.detailed_results || [];
-                const teamPlagiarism = data.team_plagiarism || {};
+                const plagiarismMax = data.plagiarism_max || {};
+                const isSingleFolder = data.is_single_folder || false;
                 
                 let comment = `## 🔍 Plagiarism Check Results\n\n`;
                 
-                // Add team summary
-                comment += `### Team Summary\n\n`;
-                comment += `| Team | Plagiarism Percentage |\n|------|----------------------|\n`;
+                // Add summary
+                comment += `### Summary\n\n`;
+                comment += `| Item | Plagiarism Percentage |\n|------|----------------------|\n`;
                 
-                Object.entries(teamPlagiarism)
+                Object.entries(plagiarismMax)
                   .sort((a, b) => b[1] - a[1])  // Sort by percentage (high to low)
-                  .forEach(([team, score]) => {
+                  .forEach(([item, score]) => {
                     const status = score < 30 ? "✅ Low" : score < 70 ? "⚠️ Medium" : "🚫 High";
-                    comment += `| ${team} | ${status} (${score}%) |\n`;
+                    comment += `| ${item} | ${status} (${score}%) |\n`;
                   });
                 
                 comment += `\n`;
