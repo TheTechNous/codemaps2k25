@@ -73,8 +73,7 @@ jobs:
           print(f"Found {len(solution_folders)} solution folders: {[f.name for f in solution_folders]}")
           
           if len(solution_folders) < 2:
-              print(f"{Fore.YELLOW}Not enough solution folders to compare. Skipping plagiarism check.{Style.RESET_ALL}")
-              sys.exit(0)
+              print(f"{Fore.YELLOW}Not enough solution folders to compare. Proceeding with available folders.{Style.RESET_ALL}")
 
           # Define languages to check for
           language_configs = [
@@ -105,8 +104,7 @@ jobs:
               file_count = sum(1 for folder in solution_folders for ext in lang_extensions for _ in Path(folder).glob(f"**/*{ext}"))
               
               if file_count < 2:
-                  print(f"{Fore.YELLOW}Not enough {lang_name} files to compare. Skipping.{Style.RESET_ALL}")
-                  continue
+                  print(f"{Fore.YELLOW}Not enough {lang_name} files to compare. Proceeding with available files.{Style.RESET_ALL}")
               
               print(f"{Fore.CYAN}Checking for plagiarism in {lang_name} files...{Style.RESET_ALL}")
               
