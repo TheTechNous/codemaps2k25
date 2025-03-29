@@ -1,0 +1,42 @@
+
+# General configuration
+seed: 42
+deterministic: true
+output_dir: "../models"
+log_dir: "../logs"
+num_workers: 4
+batch_size: 16
+patience: 10
+
+# Data paths
+workout_data_path: "../data/workout_videos"
+workout_train_annotations: "../data/workout_train.csv"
+workout_val_annotations: "../data/workout_val.csv" 
+workout_test_annotations: "../data/workout_test.csv"
+
+food_data_path: "../data/food_images"
+food_train_annotations: "../data/food_train.csv"
+food_val_annotations: "../data/food_val.csv"
+food_test_annotations: "../data/food_test.csv"
+
+# Video processing
+max_frames: 300
+frame_sample_rate: 3
+
+# Workout feedback model configuration
+workout_model:
+  base_model: "google/t5-v1_1-base"
+  vision_model: "vit_base_patch16_224"
+  hidden_dim: 768
+  num_layers: 8
+  num_heads: 8
+  dropout: 0.1
+  learning_rate: 1e-4
+  epochs: 30
+
+# Food recognition model configuration
+food_model:
+  text_model_name: "t5-base"
+  vision_model_name: "vit_base_patch16_224"
+  learning_rate: 2e-4
+  epochs: 25
