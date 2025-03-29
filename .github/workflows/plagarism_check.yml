@@ -484,42 +484,39 @@ jobs:
               with open('plagiarism_results.json', 'r') as f:
                   data = json.load(f)
                   plagiarism_max = data.get('plagiarism_max', {})
-                  is_single_folder = data.get('is_single_folder', False)
           except FileNotFoundError:
               print("No plagiarism results found. Skipping README update.")
               exit(0)
           
           # Read the current README.md
-          with open('README.md', 'r') as f:
-              readme_content = f.read()
+          try:
+              with open('README.md', 'r') as f:
+                  readme_content = f.read()
+          except FileNotFoundError:
+              readme_content = "# Project Analysis\n\n"
           
-          # Check if plagiarism results section already exists
-          plagiarism_section = "## 📊 Plagiarism Results\n"
-          plagiarism_table = "| Item | Plagiarism Percentage |\n|------|----------------------|\n"
+          # Create the plagiarism results section
+          plagiarism_section = "## 📊 Plagiarism Analysis\n\n"
           
-          # Sort items by plagiarism percentage (highest first)
-          sorted_items = sorted(plagiarism_max.items(), key=lambda x: x[1], reverse=True)
+          # Sort teams by plagiarism percentage (highest first)
+          sorted_teams = sorted(plagiarism_max.items(), key=lambda x: x[1], reverse=True)
           
-          # Generate the plagiarism table
-          for item, score in sorted_items:
-              status = "✅ Low" if score < 30 else "⚠️ Medium" if score < 70 else "🚫 High"
-              plagiarism_table += f"| {item} | {status} ({score}%) |\n"
+          # Add each team's result
+          for team, score in sorted_teams:
+              if '/' not in team:  # Only process team/folder names, not file paths
+                  status = "🚫 HIGH" if score >= 70 else "⚠️ MEDIUM" if score >= 30 else "✅ LOW"
+                  plagiarism_section += f"{team} --> {score:.1f}% plagiarism detected ({status})\n\n"
           
-          # Generate the complete plagiarism section
-          complete_section = f"{plagiarism_section}{plagiarism_table}\n"
-          
-          # Check if the section already exists and update it
-          if "## 📊 Plagiarism Results" in readme_content:
-              # Replace the existing section
-              pattern = r"## 📊 Plagiarism Results\n(\|.*\n)+"
-              readme_content = re.sub(pattern, complete_section, readme_content)
+          # Replace or add the plagiarism section in README
+          if "## 📊 Plagiarism Analysis" in readme_content:
+              pattern = r"## 📊 Plagiarism Analysis\n\n(?:.*\n)*?(?=##|$)"
+              readme_content = re.sub(pattern, plagiarism_section, readme_content)
           else:
-              # Add the section before "Happy Coding" section
+              # Add before "Happy Coding" if it exists, otherwise append to end
               if "## 🚀 Happy Coding!" in readme_content:
-                  readme_content = readme_content.replace("## 🚀 Happy Coding!", f"{complete_section}## 🚀 Happy Coding!")
+                  readme_content = readme_content.replace("## 🚀 Happy Coding!", f"{plagiarism_section}## 🚀 Happy Coding!")
               else:
-                  # If "Happy Coding" section doesn't exist, add to the end
-                  readme_content += f"\n{complete_section}"
+                  readme_content += f"\n{plagiarism_section}"
           
           # Write the updated README
           with open('README.md', 'w') as f:
@@ -533,43 +530,14 @@ jobs:
           
           # Clean up the temporary script file
           rm -f update_readme.py
-
-      - name: Update README with all logs
-        if: always()
-        run: |
-          # Append all logs to the README
-          echo "## 📝 Workflow Logs" >> README.md
-          echo "### Solution Folders Detected" >> README.md
-          echo "$FOLDERS" >> README.md
-
-          if [ -f "plagiarism_results.json" ]; then
-            echo "### Plagiarism Results" >> README.md
-            cat plagiarism_results.json >> README.md
-          fi
-
-          if [ -f "ai_detection_results.txt" ]; then
-            echo "### AI Detection Results" >> README.md
-            cat ai_detection_results.txt >> README.md
-          fi
-
-          echo "Logs appended to README.md successfully!"
-
+          
       - name: Commit README changes
         if: success()
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
-          # Clean up any leftover files before committing
-          rm -f jplag.jar
-          rm -f ai_detection_results.txt 
-          
           git add README.md
-          git commit -m "Update README with plagiarism results [skip ci]" || echo "No changes to commit"
-          
-          # Use the GitHub token with explicit authentication
-          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials
-          git config --global credential.helper store
+          git commit -m "Update README with plagiarism analysis [skip ci]" || echo "No changes to commit"
           git push origin HEAD:${GITHUB_REF_NAME}
 
       - name: Comment on PR
@@ -582,50 +550,25 @@ jobs:
             try {
               if (fs.existsSync('plagiarism_results.json')) {
                 const data = JSON.parse(fs.readFileSync('plagiarism_results.json', 'utf8'));
-                const results = data.detailed_results || [];
-                const plagiarismMax = data.plagiarism_max || {};
-                const isSingleFolder = data.is_single_folder || false;
+                const plagiarismMax = data.get('plagiarism_max', {});
                 
-                let comment = `## 🔍 Plagiarism Check Results\n\n`;
+                let comment = `## 🔍 Plagiarism Analysis Results\n\n`;
                 
-                // Add summary
-                comment += `### Summary\n\n`;
-                comment += `| Item | Plagiarism Percentage |\n|------|----------------------|\n`;
+                // Sort teams by plagiarism percentage
+                const sortedTeams = Object.entries(plagiarismMax)
+                  .filter(([team]) => !team.includes('/'))  // Only include team/folder names
+                  .sort((a, b) => b[1] - a[1]);
                 
-                Object.entries(plagiarismMax)
-                  .sort((a, b) => b[1] - a[1])  // Sort by percentage (high to low)
-                  .forEach(([item, score]) => {
-                    const status = score < 30 ? "✅ Low" : score < 70 ? "⚠️ Medium" : "🚫 High";
-                    comment += `| ${item} | ${status} (${score}%) |\n`;
+                if (sortedTeams.length > 0) {
+                  sortedTeams.forEach(([team, score]) => {
+                    const status = score >= 70 ? "🚫 HIGH" : score >= 30 ? "⚠️ MEDIUM" : "✅ LOW";
+                    comment += `${team} --> ${score.toFixed(1)}% plagiarism detected (${status})\n\n`;
                   });
-                
-                comment += `\n`;
-                
-                if (results.length > 0) {
-                  comment += `### Detailed Matches\n\n`;
-                  comment += `⚠️ **Potential plagiarism detected!**\n\n`;
-                  comment += `Found ${results.length} match(es) with high similarity:\n\n`;
-                  
-                  // Group by language for better readability
-                  const languageGroups = results.reduce((groups, result) => {
-                    const lang = result.language;
-                    if (!groups[lang]) groups[lang] = [];
-                    groups[lang].push(result);
-                    return groups;
-                  }, {});
-                  
-                  for (const [language, langResults] of Object.entries(languageGroups)) {
-                    comment += `#### ${language.toUpperCase()}\n`;
-                    langResults.forEach(result => {
-                      comment += `- Match: ${result.similarity} between ${result.team1} and ${result.team2} (Tool: ${result.tool || 'JPlag'})\n`;
-                    });
-                    comment += `\n`;
-                  }
                 } else {
-                  comment += `✅ **No detailed plagiarism matches detected!**\n\n`;
+                  comment += `✅ No significant plagiarism detected between teams.\n\n`;
                 }
                 
-                comment += `\n*Note: This is an automated check using multiple similarity detection methods. Please review the results manually if needed.*`;
+                comment += `\n*Note: This is an automated analysis. Please review the results manually if needed.*`;
                 
                 github.rest.issues.createComment({
                   issue_number: context.issue.number,
@@ -638,7 +581,7 @@ jobs:
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  body: '## 🔍 Plagiarism Check\n\nPlagiarism check was executed but no results were found. This could be because there were not enough files to compare or an error occurred during processing.'
+                  body: '## 🔍 Plagiarism Check\n\nNo results found. This could be because there were not enough files to compare.'
                 });
               }
             } catch (error) {
@@ -647,6 +590,6 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: '## ❌ Plagiarism Check Error\n\nAn error occurred while processing the plagiarism check results.'
+                body: '## ❌ Plagiarism Check Error\n\nAn error occurred while processing the plagiarism results.'
               });
             }
