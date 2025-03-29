@@ -1,0 +1,364 @@
+name: Plagiarism Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+
+jobs:
+  check-plagiarism:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 colorama
+
+      - name: Download JPlag
+        run: |
+          curl -L -o jplag.jar https://github.com/jplag/JPlag/releases/download/v3.0.0/jplag-3.0.0-jar-with-dependencies.jar
+
+      - name: Detect solution folders
+        id: detect-folders
+        run: |
+          # Get all directories (excluding .git and .github)
+          FOLDERS=$(find . -maxdepth 1 -type d -not -path "*/\.*" -not -path "." | sort)
+          echo "Found solution folders: $FOLDERS"
+          echo "solution_folders=$FOLDERS" >> $GITHUB_OUTPUT
+
+      - name: Check plagiarism with JPlag
+        id: jplag-check
+        run: |
+          # Create a Python script for plagiarism checking
+          cat > check_plagiarism.py << 'EOL'
+          import os
+          import sys
+          import re
+          import json
+          import subprocess
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import requests
+          from colorama import Fore, Style, init
+          import collections
+          import shutil
+
+          # Initialize colorama
+          init()
+
+          # Get all directories in current path (excluding .git and .github)
+          solution_folders = [d for d in Path('.').iterdir() 
+                              if d.is_dir() and not d.name.startswith('.')]
+          
+          print(f"Found {len(solution_folders)} solution folders: {[f.name for f in solution_folders]}")
+          
+          if len(solution_folders) < 2:
+              print(f"{Fore.YELLOW}Not enough solution folders to compare. Skipping plagiarism check.{Style.RESET_ALL}")
+              sys.exit(0)
+
+          # Define languages to check for
+          language_configs = [
+              {"name": "python", "extensions": [".py"], "jplag_lang": "python3"},
+              {"name": "java", "extensions": [".java"], "jplag_lang": "java"},
+              {"name": "javascript", "extensions": [".js"], "jplag_lang": "javascript"},
+              {"name": "cpp", "extensions": [".cpp", ".hpp", ".cc", ".h"], "jplag_lang": "cpp"},
+              {"name": "c", "extensions": [".c", ".h"], "jplag_lang": "c/c++"}
+          ]
+
+          # Dictionary to track team plagiarism percentages
+          team_plagiarism = collections.defaultdict(list)
+          results = []
+
+          # Create results directory
+          results_dir = Path("plagiarism_results")
+          if results_dir.exists():
+              shutil.rmtree(results_dir)
+          results_dir.mkdir()
+
+          # Run JPlag for each language
+          for lang_config in language_configs:
+              lang_name = lang_config["name"]
+              lang_extensions = lang_config["extensions"]
+              jplag_lang = lang_config["jplag_lang"]
+              
+              # Check if there are at least 2 files of this language to compare
+              file_count = sum(1 for folder in solution_folders for ext in lang_extensions for _ in Path(folder).glob(f"**/*{ext}"))
+              
+              if file_count < 2:
+                  print(f"{Fore.YELLOW}Not enough {lang_name} files to compare. Skipping.{Style.RESET_ALL}")
+                  continue
+              
+              print(f"{Fore.CYAN}Checking for plagiarism in {lang_name} files...{Style.RESET_ALL}")
+              
+              # Run JPlag
+              output_dir = results_dir / lang_name
+              cmd = [
+                  "java", "-jar", "jplag.jar",
+                  "-l", jplag_lang,
+                  "-r", str(output_dir),
+                  "-m", "0%",  # Include all matches
+                  "."  # Search in current directory
+              ]
+              
+              # Add language-specific exclude patterns
+              for exclude_lang in language_configs:
+                  if exclude_lang["name"] != lang_name:
+                      for ext in exclude_lang["extensions"]:
+                          cmd.extend(["-x", f"**/*{ext}"])
+              
+              # Exclude .git and .github directories
+              cmd.extend(["-x", ".git/**", "-x", ".github/**"])
+              
+              print(f"Running command: {' '.join(cmd)}")
+              process = subprocess.run(cmd, capture_output=True, text=True)
+              
+              if process.returncode != 0:
+                  print(f"{Fore.RED}Error running JPlag for {lang_name}:{Style.RESET_ALL}")
+                  print(process.stderr)
+                  continue
+              
+              print(process.stdout)
+              
+              # Parse the results
+              index_file = output_dir / "index.html"
+              if not index_file.exists():
+                  print(f"{Fore.YELLOW}No results found for {lang_name}.{Style.RESET_ALL}")
+                  continue
+              
+              # Parse the HTML report
+              with open(index_file, "r", encoding="utf-8") as f:
+                  soup = BeautifulSoup(f.read(), 'html.parser')
+              
+              # Extract matches from the table
+              table = soup.find('table')
+              if table:
+                  rows = table.find_all('tr')[1:]  # Skip header row
+                  
+                  for row in rows:
+                      cells = row.find_all('td')
+                      if len(cells) >= 3:
+                          similarity_cell = cells[0]
+                          similarity_text = similarity_cell.get_text(strip=True)
+                          similarity_value = float(similarity_text.replace('%', ''))
+                          
+                          # Get team names from the comparison
+                          team_links = cells[1:3]
+                          team1 = team_links[0].get_text(strip=True).split('/')[0]
+                          team2 = team_links[1].get_text(strip=True).split('/')[0]
+                          
+                          # Get link to the detailed comparison
+                          comparison_link = team_links[0].find('a')['href'] if team_links[0].find('a') else ""
+                          
+                          # Add to team plagiarism scores
+                          team_plagiarism[team1].append(similarity_value)
+                          team_plagiarism[team2].append(similarity_value)
+                          
+                          # Add to results
+                          results.append({
+                              'language': lang_name,
+                              'team1': team1,
+                              'team2': team2,
+                              'similarity': f"{similarity_value}%",
+                              'match_url': f"{lang_name}/{comparison_link}"
+                          })
+
+          # Calculate the maximum plagiarism percentage for each team
+          team_plagiarism_max = {}
+          for team, scores in team_plagiarism.items():
+              if scores:
+                  # Use the maximum plagiarism score found for the team
+                  team_plagiarism_max[team] = max(scores)
+              else:
+                  team_plagiarism_max[team] = 0
+
+          # Save the results as JSON
+          with open("plagiarism_results.json", "w") as f:
+              json.dump({
+                  'detailed_results': results,
+                  'team_plagiarism': team_plagiarism_max
+              }, f, indent=2)
+
+          # Create a result URL file for GitHub Actions
+          with open("plagiarism_result_url.txt", "w") as f:
+              f.write("plagiarism_results/")
+
+          # Print results in the console
+          if results:
+              print(f"\n{Fore.RED}Found {len(results)} potential plagiarism cases:{Style.RESET_ALL}")
+              for result in results:
+                  print(f"{Fore.YELLOW}Language: {result['language']} - Match: {result['similarity']} between {result['team1']} and {result['team2']}{Style.RESET_ALL}")
+              
+              print(f"\n{Fore.CYAN}Team Plagiarism Summary:{Style.RESET_ALL}")
+              for team, score in team_plagiarism_max.items():
+                  status = f"{Fore.GREEN}Low" if score < 30 else f"{Fore.YELLOW}Medium" if score < 70 else f"{Fore.RED}High"
+                  print(f"{team}: {status} ({score}%){Style.RESET_ALL}")
+          else:
+              print(f"\n{Fore.GREEN}No plagiarism detected!{Style.RESET_ALL}")
+          EOL
+
+          # Run the plagiarism check script
+          python check_plagiarism.py || echo "Plagiarism check script execution failed"
+
+      - name: Upload plagiarism results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: plagiarism-results
+          path: |
+            plagiarism_result_url.txt
+            plagiarism_results.json
+            plagiarism_results/
+          if-no-files-found: ignore
+
+      - name: Update README with plagiarism results
+        if: success()
+        run: |
+          # Create a Python script to update the README
+          cat > update_readme.py << 'EOL'
+          import json
+          import re
+          
+          # Read the plagiarism results
+          try:
+              with open('plagiarism_results.json', 'r') as f:
+                  data = json.load(f)
+                  team_plagiarism = data.get('team_plagiarism', {})
+          except FileNotFoundError:
+              print("No plagiarism results found. Skipping README update.")
+              exit(0)
+          
+          # Read the current README.md
+          with open('README.md', 'r') as f:
+              readme_content = f.read()
+          
+          # Check if plagiarism results section already exists
+          plagiarism_section = "## 📊 Plagiarism Results\n"
+          plagiarism_table = "| Team | Plagiarism Percentage |\n|------|----------------------|\n"
+          
+          # Sort teams by plagiarism percentage (highest first)
+          sorted_teams = sorted(team_plagiarism.items(), key=lambda x: x[1], reverse=True)
+          
+          # Generate the plagiarism table
+          for team, score in sorted_teams:
+              status = "✅ Low" if score < 30 else "⚠️ Medium" if score < 70 else "🚫 High"
+              plagiarism_table += f"| {team} | {status} ({score}%) |\n"
+          
+          # Generate the complete plagiarism section
+          complete_section = f"{plagiarism_section}{plagiarism_table}\n"
+          
+          # Check if the section already exists and update it
+          if "## 📊 Plagiarism Results" in readme_content:
+              # Replace the existing section
+              pattern = r"## 📊 Plagiarism Results\n(\|.*\n)+"
+              readme_content = re.sub(pattern, complete_section, readme_content)
+          else:
+              # Add the section before "Happy Coding" section
+              if "## 🚀 Happy Coding!" in readme_content:
+                  readme_content = readme_content.replace("## 🚀 Happy Coding!", f"{complete_section}## 🚀 Happy Coding!")
+              else:
+                  # If "Happy Coding" section doesn't exist, add to the end
+                  readme_content += f"\n{complete_section}"
+          
+          # Write the updated README
+          with open('README.md', 'w') as f:
+              f.write(readme_content)
+          
+          print("README.md updated with plagiarism results successfully!")
+          EOL
+          
+          # Run the update script
+          python update_readme.py
+
+      - name: Commit README changes
+        if: success()
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git commit -m "Update README with plagiarism results [skip ci]" || echo "No changes to commit"
+          git push
+        # Note: For private repositories, you may need to add a PAT token
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              if (fs.existsSync('plagiarism_results.json')) {
+                const data = JSON.parse(fs.readFileSync('plagiarism_results.json', 'utf8'));
+                const results = data.detailed_results || [];
+                const teamPlagiarism = data.team_plagiarism || {};
+                
+                let comment = `## 🔍 Plagiarism Check Results\n\n`;
+                
+                // Add team summary
+                comment += `### Team Summary\n\n`;
+                comment += `| Team | Plagiarism Percentage |\n|------|----------------------|\n`;
+                
+                Object.entries(teamPlagiarism)
+                  .sort((a, b) => b[1] - a[1])  // Sort by percentage (high to low)
+                  .forEach(([team, score]) => {
+                    const status = score < 30 ? "✅ Low" : score < 70 ? "⚠️ Medium" : "🚫 High";
+                    comment += `| ${team} | ${status} (${score}%) |\n`;
+                  });
+                
+                comment += `\n`;
+                
+                if (results.length > 0) {
+                  comment += `### Detailed Matches\n\n`;
+                  comment += `⚠️ **Potential plagiarism detected!**\n\n`;
+                  comment += `Found ${results.length} match(es) with high similarity:\n\n`;
+                  
+                  results.forEach(result => {
+                    comment += `- Language: ${result.language} - Match: ${result.similarity} between ${result.team1} and ${result.team2}\n`;
+                  });
+                } else {
+                  comment += `✅ **No detailed plagiarism matches detected!**\n\n`;
+                }
+                
+                comment += `\n*Note: This is an automated check. Please review the results manually if needed.*`;
+                
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: comment
+                });
+              } else {
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: '## 🔍 Plagiarism Check\n\nPlagiarism check was executed but no results were found. This could be because there were not enough files to compare or an error occurred during processing.'
+                });
+              }
+            } catch (error) {
+              console.error('Error commenting on PR:', error);
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '## ❌ Plagiarism Check Error\n\nAn error occurred while processing the plagiarism check results.'
+              });
+            }
