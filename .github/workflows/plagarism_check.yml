@@ -478,15 +478,38 @@ jobs:
           cat > update_readme.py << 'EOL'
           import json
           import re
+          from pathlib import Path
+          
+          def get_team_name(path):
+              """Extract team name from path, using the top-level folder name"""
+              parts = Path(path).parts
+              return parts[0] if parts else path
           
           # Read the plagiarism results
           try:
               with open('plagiarism_results.json', 'r') as f:
                   data = json.load(f)
-                  plagiarism_max = data.get('plagiarism_max', {})
+                  # Aggregate all results by team/folder
+                  team_results = {}
+                  
+                  # Process detailed results to get team-level scores
+                  for result in data.get('detailed_results', []):
+                      team1 = get_team_name(result.get('team1', ''))
+                      team2 = get_team_name(result.get('team2', ''))
+                      similarity = float(result.get('similarity', '0').strip('%'))
+                      
+                      if team1 and not '/' in team1:
+                          if team1 not in team_results or similarity > team_results[team1]:
+                              team_results[team1] = similarity
+                      if team2 and not '/' in team2:
+                          if team2 not in team_results or similarity > team_results[team2]:
+                              team_results[team2] = similarity
           except FileNotFoundError:
               print("No plagiarism results found. Skipping README update.")
               exit(0)
+          except Exception as e:
+              print(f"Error processing plagiarism results: {e}")
+              exit(1)
           
           # Read the current README.md
           try:
@@ -498,14 +521,15 @@ jobs:
           # Create the plagiarism results section
           plagiarism_section = "## 📊 Plagiarism Analysis\n\n"
           
-          # Sort teams by plagiarism percentage (highest first)
-          sorted_teams = sorted(plagiarism_max.items(), key=lambda x: x[1], reverse=True)
-          
-          # Add each team's result
-          for team, score in sorted_teams:
-              if '/' not in team:  # Only process team/folder names, not file paths
+          if team_results:
+              # Sort teams by plagiarism percentage (highest first)
+              sorted_teams = sorted(team_results.items(), key=lambda x: x[1], reverse=True)
+              
+              for team, score in sorted_teams:
                   status = "🚫 HIGH" if score >= 70 else "⚠️ MEDIUM" if score >= 30 else "✅ LOW"
                   plagiarism_section += f"{team} --> {score:.1f}% plagiarism detected ({status})\n\n"
+          else:
+              plagiarism_section += "No significant plagiarism detected between teams.\n\n"
           
           # Replace or add the plagiarism section in README
           if "## 📊 Plagiarism Analysis" in readme_content:
@@ -530,7 +554,7 @@ jobs:
           
           # Clean up the temporary script file
           rm -f update_readme.py
-          
+
       - name: Commit README changes
         if: success()
         run: |
@@ -550,13 +574,27 @@ jobs:
             try {
               if (fs.existsSync('plagiarism_results.json')) {
                 const data = JSON.parse(fs.readFileSync('plagiarism_results.json', 'utf8'));
-                const plagiarismMax = data.get('plagiarism_max', {});
+                const results = data.detailed_results || [];
+                
+                // Aggregate results by team
+                const teamResults = {};
+                for (const result of results) {
+                  const team1 = result.team1.split('/')[0];
+                  const team2 = result.team2.split('/')[0];
+                  const similarity = parseFloat(result.similarity);
+                  
+                  if (!teamResults[team1] || similarity > teamResults[team1]) {
+                    teamResults[team1] = similarity;
+                  }
+                  if (!teamResults[team2] || similarity > teamResults[team2]) {
+                    teamResults[team2] = similarity;
+                  }
+                }
                 
                 let comment = `## 🔍 Plagiarism Analysis Results\n\n`;
                 
                 // Sort teams by plagiarism percentage
-                const sortedTeams = Object.entries(plagiarismMax)
-                  .filter(([team]) => !team.includes('/'))  // Only include team/folder names
+                const sortedTeams = Object.entries(teamResults)
                   .sort((a, b) => b[1] - a[1]);
                 
                 if (sortedTeams.length > 0) {
