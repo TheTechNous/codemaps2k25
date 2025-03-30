@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 colorama
+          pip install requests beautifulsoup4 colorama PyGithub
 
       - name: Download JPlag
         run: |
@@ -49,6 +49,8 @@ jobs:
 
       - name: Check plagiarism with multiple tools
         id: plagiarism-check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create a Python script for enhanced plagiarism checking
           cat > check_plagiarism.py << 'EOL'
@@ -60,14 +62,17 @@ jobs:
           from pathlib import Path
           from bs4 import BeautifulSoup
           import requests
+          from github import Github
           from colorama import Fore, Style, init
           import collections
           import shutil
           import hashlib
           import difflib
+          import tempfile
 
-          # Initialize colorama
+          # Initialize colorama and GitHub API
           init()
+          g = Github(os.getenv('GITHUB_TOKEN'))
 
           def normalize_path(path):
               """Normalize path to handle both Windows and Unix paths"""
@@ -119,6 +124,61 @@ jobs:
               except Exception as e:
                   print(f"{Fore.RED}Error comparing folders {folder1} and {folder2}: {e}{Style.RESET_ALL}")
                   return None
+
+          def fetch_online_code(language):
+              """Fetch similar code from GitHub based on language"""
+              online_files = []
+              search_query = f"language:{language} stars:>10"
+              
+              try:
+                  # Search for repositories
+                  repos = g.search_repositories(query=search_query, sort="stars", order="desc")
+                  processed_repos = 0
+                  
+                  for repo in repos:
+                      if processed_repos >= 5:  # Limit to top 5 repos
+                          break
+                          
+                      try:
+                          # Get repository contents
+                          contents = repo.get_contents("")
+                          while contents:
+                              file_content = contents.pop(0)
+                              if file_content.type == "dir":
+                                  contents.extend(repo.get_contents(file_content.path))
+                              else:
+                                  # Check file extension
+                                  if any(file_content.name.endswith(ext) for ext in get_extensions_for_language(language)):
+                                      # Download and save file temporarily
+                                      temp_dir = Path("temp_online_code")
+                                      temp_dir.mkdir(exist_ok=True)
+                                      temp_file = temp_dir / f"{repo.name}_{file_content.name}"
+                                      
+                                      with open(temp_file, 'wb') as f:
+                                          f.write(file_content.decoded_content)
+                                      
+                                      online_files.append({
+                                          'path': temp_file,
+                                          'repo_url': repo.html_url,
+                                          'file_url': file_content.html_url
+                                      })
+                          
+                          processed_repos += 1
+                      except Exception as e:
+                          print(f"{Fore.RED}Error processing repo {repo.name}: {e}{Style.RESET_ALL}")
+                          continue
+                          
+              except Exception as e:
+                  print(f"{Fore.RED}Error fetching online code: {e}{Style.RESET_ALL}")
+              
+              return online_files
+
+          def get_extensions_for_language(lang_name):
+              """Get file extensions for a given language"""
+              for config in language_configs:
+                  if config['name'] == lang_name:
+                      return config['extensions']
+              return []
 
           # Get all directories in current path (excluding .git and .github)
           solution_folders = [d for d in Path('.').iterdir() 
@@ -203,6 +263,41 @@ jobs:
               # Create output directory for this language
               output_dir = results_dir / lang_name
               output_dir.mkdir(exist_ok=True)
+              
+              print(f"{Fore.CYAN}Fetching online code for comparison ({lang_name})...{Style.RESET_ALL}")
+              online_files = fetch_online_code(lang_name)
+              
+              # Add online files to the comparison
+              if online_files:
+                  print(f"{Fore.GREEN}Found {len(online_files)} online files for comparison{Style.RESET_ALL}")
+                  
+                  # Compare local files with online files
+                  for local_file in language_files:
+                      for online_file in online_files:
+                          try:
+                              similarity = check_similarity(local_file, online_file['path'])
+                              if similarity >= 30:  # Using 30% threshold
+                                  local_folder = get_main_folder_name(local_file)
+                                  results.append({
+                                      'language': lang_name,
+                                      'team1': local_folder,
+                                      'team2': f"Online: {online_file['repo_url']}",
+                                      'similarity': f"{similarity:.1f}%",
+                                      'file1': str(local_file),
+                                      'file2': online_file['file_url'],
+                                      'tool': 'Online'
+                                  })
+                                  
+                                  # Update team plagiarism scores
+                                  team_plagiarism[local_folder].append(similarity)
+                                  
+                          except Exception as e:
+                              print(f"{Fore.RED}Error comparing with online file: {e}{Style.RESET_ALL}")
+              
+              # Cleanup temporary online files
+              temp_dir = Path("temp_online_code")
+              if temp_dir.exists():
+                  shutil.rmtree(temp_dir)
               
               # Method 1: Use JPlag if we have multiple solution folders
               if len(solution_folders) > 1:
