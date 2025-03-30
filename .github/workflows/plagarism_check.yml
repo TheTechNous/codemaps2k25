@@ -264,7 +264,14 @@ jobs:
                       # Exclude .git and .github directories
                       cmd.extend(["-x", ".git/**", "-x", ".github/**"])
                       
-                      print(f"Running JPlag: {' '.join(cmd)}")
+                      # Print the exact command that will be run (with explicit formatting for logs)
+                      cmd_str = ' '.join(cmd)
+                      print(f"{Fore.CYAN}Checking for plagiarism in {file_count} {lang_name} files...{Style.RESET_ALL}")
+                      print(f"Running JPlag: {cmd_str}")
+                      
+                      # Set environment variable to increase verbosity
+                      os.environ['JPLAG_VERBOSE'] = 'true'
+                      
                       process = subprocess.run(cmd, capture_output=True, text=True)
                       
                       if process.returncode != 0:
