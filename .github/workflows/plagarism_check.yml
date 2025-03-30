@@ -42,10 +42,12 @@ jobs:
       - name: Detect solution folders
         id: detect-folders
         run: |
-          # Get all directories (excluding .git and .github) and format them properly
-          FOLDERS=$(find . -maxdepth 1 -type d -not -path "*/\.*" -not -path "." -printf "%P\n" | sort)
+          # Get all directories (excluding .git and .github) with proper escaping
+          FOLDERS=$(find . -maxdepth 1 -type d -not -path "*/\.*" -not -path "." | sed 's/^\.\///' | sort)
           echo "Found solution folders: $FOLDERS"
-          echo "solution_folders=$FOLDERS" >> $GITHUB_OUTPUT
+          # Escape any special characters in folder names
+          SAFE_FOLDERS=$(echo "$FOLDERS" | tr '\n' ' ' | sed 's/[^a-zA-Z0-9_ ]/_/g')
+          echo "solution_folders=$SAFE_FOLDERS" >> $GITHUB_OUTPUT
 
       - name: Check plagiarism with multiple tools
         id: plagiarism-check
@@ -82,6 +84,15 @@ jobs:
               path = re.sub(r'^\.[\\/]', '', str(path))
               return path.replace('\\', '/')
 
+          def sanitize_folder_name(name):
+              """Sanitize folder name to prevent format errors"""
+              if not name:
+                  return "Unknown"
+              
+              # Remove any characters that might cause issues
+              safe_name = re.sub(r'[^a-zA-Z0-9_\-.]', '_', str(name))
+              return safe_name if safe_name else "Unknown"
+
           def get_main_folder_name(path):
               """Extract only the main folder name from a path, handling any format"""
               if not path or isinstance(path, (int, float, bool)):
@@ -96,7 +107,7 @@ jobs:
               # Get first non-empty part that's not a dot
               for part in parts:
                   if part and not part.startswith('.'):
-                      return part
+                      return sanitize_folder_name(part)
               return "Unknown"
 
           def process_file_path(path):
@@ -400,10 +411,14 @@ jobs:
                   # Group files by main folder name
                   folder_files = {}
                   for file in language_files:
-                      main_folder = get_main_folder_name(file)
-                      if main_folder not in folder_files:
-                          folder_files[main_folder] = []
-                      folder_files[main_folder].append(file)
+                      try:
+                          main_folder = get_main_folder_name(file)
+                          if main_folder not in folder_files:
+                              folder_files[main_folder] = []
+                          folder_files[main_folder].append(file)
+                      except Exception as e:
+                          print(f"{Fore.RED}Error processing file path {file}: {e}{Style.RESET_ALL}")
+                          continue
                   
                   # Compare files between different main folders
                   for folder1, files1 in folder_files.items():
@@ -447,24 +462,42 @@ jobs:
                   else:
                       plagiarism_max[file_path] = 0
 
-          # Save results with proper path handling
+          # Save results with extra path handling and sanitization
           with open("plagiarism_results.json", "w") as f:
               normalized_results = []
               for result in results:
-                  normalized_result = result.copy()
-                  if 'file1' in result:
-                      path1 = process_file_path(result['file1'])
-                      normalized_result['file1'] = path1 if path1 else str(result['file1'])
-                  if 'file2' in result:
-                      path2 = process_file_path(result['file2'])
-                      normalized_result['file2'] = path2 if path2 else str(result['file2'])
-                  normalized_results.append(normalized_result)
+                  try:
+                      normalized_result = result.copy()
+                      if 'team1' in result:
+                          normalized_result['team1'] = sanitize_folder_name(result['team1'])
+                      if 'team2' in result:
+                          normalized_result['team2'] = sanitize_folder_name(result['team2'])
+                      if 'file1' in result:
+                          path1 = process_file_path(result['file1'])
+                          normalized_result['file1'] = path1 if path1 else "unknown_file1"
+                      if 'file2' in result:
+                          path2 = process_file_path(result['file2'])
+                          normalized_result['file2'] = path2 if path2 else "unknown_file2"
+                      normalized_results.append(normalized_result)
+                  except Exception as e:
+                      print(f"{Fore.RED}Error normalizing result: {e}{Style.RESET_ALL}")
+                      continue
               
-              json.dump({
-                  'detailed_results': normalized_results,
-                  'plagiarism_max': plagiarism_max,
-                  'is_single_folder': len(solution_folders) == 1
-              }, f, indent=2)
+              # Make sure to handle any potential errors in the final results
+              try:
+                  json.dump({
+                      'detailed_results': normalized_results,
+                      'plagiarism_max': {sanitize_folder_name(k): v for k, v in plagiarism_max.items()},
+                      'is_single_folder': len(solution_folders) == 1
+                  }, f, indent=2)
+              except Exception as e:
+                  print(f"{Fore.RED}Error writing results to JSON: {e}{Style.RESET_ALL}")
+                  # Fallback to a simple valid JSON if the original data has issues
+                  json.dump({
+                      'detailed_results': [],
+                      'plagiarism_max': {},
+                      'is_single_folder': len(solution_folders) == 1
+                  }, f, indent=2)
 
           # Create a result URL file for GitHub Actions
           with open("plagiarism_result_url.txt", "w") as f:
