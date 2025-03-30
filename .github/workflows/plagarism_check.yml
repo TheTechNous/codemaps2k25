@@ -42,8 +42,8 @@ jobs:
       - name: Detect solution folders
         id: detect-folders
         run: |
-          # Get all directories (excluding .git and .github)
-          FOLDERS=$(find . -maxdepth 1 -type d -not -path "*/\\.*" -not -path "." | sort)
+          # Get all directories (excluding .git and .github) and format them properly
+          FOLDERS=$(find . -maxdepth 1 -type d -not -path "*/\.*" -not -path "." -printf "%P\n" | sort)
           echo "Found solution folders: $FOLDERS"
           echo "solution_folders=$FOLDERS" >> $GITHUB_OUTPUT
 
@@ -69,10 +69,61 @@ jobs:
           # Initialize colorama
           init()
 
+          def normalize_path(path):
+              """Normalize path to handle both Windows and Unix paths"""
+              if isinstance(path, Path):
+                  path = str(path)
+              return str(Path(path.replace('\\', '/')))
+
+          def get_main_folder_name(path):
+              """Extract only the main folder name from a path, handling all path formats"""
+              if not path:
+                  return "Unknown"
+              
+              # Normalize path
+              path = normalize_path(path)
+              
+              # Remove leading ./ or .\ and split
+              path = re.sub(r'^\.[\\/]', '', path)
+              
+              # Get first part of path that's not empty or hidden
+              parts = [p for p in path.split('/') if p and not p.startswith('.')]
+              return parts[0] if parts else "Unknown"
+
+          def get_file_list(directory):
+              """Get list of files while handling path errors"""
+              try:
+                  if isinstance(directory, str):
+                      directory = Path(directory)
+                  return [f for f in directory.rglob('*') if f.is_file()]
+              except Exception as e:
+                  print(f"{Fore.RED}Error accessing directory {directory}: {e}{Style.RESET_ALL}")
+                  return []
+
+          def compare_folders(folder1, folder2, file1, file2):
+              """Compare files from different folders and return results if similarity threshold is met"""
+              try:
+                  if folder1 == folder2:  # Skip if same folder
+                      return None
+                  
+                  similarity = check_similarity(file1, file2)
+                  if similarity >= 30:  # Using 30% threshold
+                      return {
+                          'folder1': folder1,
+                          'folder2': folder2,
+                          'file1': str(file1),
+                          'file2': str(file2),
+                          'similarity': similarity
+                      }
+                  return None
+              except Exception as e:
+                  print(f"{Fore.RED}Error comparing folders {folder1} and {folder2}: {e}{Style.RESET_ALL}")
+                  return None
+
           # Get all directories in current path (excluding .git and .github)
           solution_folders = [d for d in Path('.').iterdir() 
-                              if d.is_dir() and not d.name.startswith('.')]
-          
+                            if d.is_dir() and not d.name.startswith('.')]
+
           print(f"Found {len(solution_folders)} solution folders: {[f.name for f in solution_folders]}")
           
           # Define languages to check for with correct JPlag language options
@@ -101,51 +152,28 @@ jobs:
           # Function for custom code similarity check
           def check_similarity(file1, file2):
               try:
+                  file1 = normalize_path(file1)
+                  file2 = normalize_path(file2)
+                  
                   with open(file1, 'r', encoding='utf-8', errors='ignore') as f1, \
                        open(file2, 'r', encoding='utf-8', errors='ignore') as f2:
                       content1 = f1.read()
                       content2 = f2.read()
                       
-                      # Remove comments and normalize whitespace to reduce false positives
+                      # Remove comments and normalize whitespace
                       content1 = re.sub(r'\/\/.*|\/\*[\s\S]*?\*\/|#.*', '', content1)
                       content2 = re.sub(r'\/\/.*|\/\*[\s\S]*?\*\/|#.*', '', content2)
                       content1 = re.sub(r'\s+', ' ', content1).strip()
                       content2 = re.sub(r'\s+', ' ', content2).strip()
                       
-                      # Skip empty files after comment removal
                       if not content1 or not content2:
                           return 0
                       
-                      # Use Python's difflib to compute similarity
                       similarity = difflib.SequenceMatcher(None, content1, content2).ratio() * 100
                       return similarity
               except Exception as e:
                   print(f"{Fore.RED}Error comparing {file1} and {file2}: {e}{Style.RESET_ALL}")
                   return 0
-
-          def get_main_folder_name(path):
-              """Get only the top-level folder name from a path"""
-              if not path:
-                  return "Unknown"
-              # Handle strings and Path objects
-              parts = path.parts if isinstance(path, Path) else Path(str(path).lstrip('./')).parts
-              # Return first non-empty part that's not a hidden folder
-              return next((p for p in parts if p and not p.startswith('.')), "Unknown")
-
-          def compare_folders(folder1, folder2, file1, file2):
-              """Compare two files and their folders"""
-              if folder1 >= folder2:  # Skip self-comparison and duplicates
-                  return None
-              similarity = check_similarity(file1, file2)
-              if similarity >= 30:  # Use 30% threshold
-                  return {
-                      'similarity': similarity,
-                      'folder1': get_main_folder_name(folder1),
-                      'folder2': get_main_folder_name(folder2),
-                      'file1': str(file1),
-                      'file2': str(file2)
-                  }
-              return None
 
           # Run plagiarism check for each language
           for lang_config in language_configs:
@@ -153,12 +181,17 @@ jobs:
               lang_extensions = lang_config["extensions"]
               jplag_lang = lang_config["jplag_lang"]
               
-              # Find all files of the given language
+              # Find all files of the given language using normalized paths
               language_files = []
               for folder in solution_folders:
-                  for ext in lang_extensions:
-                      language_files.extend(list(Path(folder).glob(f"**/*{ext}")))
-              
+                  try:
+                      folder_path = normalize_path(folder)
+                      for ext in lang_extensions:
+                          language_files.extend(Path(folder_path).glob(f"**/*{ext}"))
+                  except Exception as e:
+                      print(f"{Fore.RED}Error processing folder {folder}: {e}{Style.RESET_ALL}")
+                      continue
+
               file_count = len(language_files)
               
               if file_count < 2:
@@ -299,10 +332,19 @@ jobs:
                   else:
                       plagiarism_max[file_path] = 0
 
-          # Save the results as JSON
+          # Save results with normalized paths
           with open("plagiarism_results.json", "w") as f:
+              normalized_results = []
+              for result in results:
+                  normalized_result = result.copy()
+                  if 'file1' in result:
+                      normalized_result['file1'] = normalize_path(result['file1'])
+                  if 'file2' in result:
+                      normalized_result['file2'] = normalize_path(result['file2'])
+                  normalized_results.append(normalized_result)
+                  
               json.dump({
-                  'detailed_results': results,
+                  'detailed_results': normalized_results,
                   'plagiarism_max': plagiarism_max,
                   'is_single_folder': len(solution_folders) == 1
               }, f, indent=2)
