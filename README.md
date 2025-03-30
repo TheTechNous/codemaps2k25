@@ -24,6 +24,12 @@ Please ensure your submission represents your team's original work. Plagiarism w
 
 ## 📊 Plagiarism Analysis
 
-No significant plagiarism detected between teams.
+syntax_error --> 100.0% plagiarism detected (🚫 HIGH)
+
+Exceptions --> 100.0% plagiarism detected (🚫 HIGH)
+
+velomyst --> 40.8% plagiarism detected (🚫 HIGH)
+
+dbdt --> 39.2% plagiarism detected (🚫 HIGH)
 
 
