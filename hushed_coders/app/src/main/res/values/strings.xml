@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">DistanceCalc(Shoolini univ)</string>
+    <string name="shoolinidatas">Courses Provided :
+1. B Com(Hons)
+2. B Design
+3. B Design (LEET)
+4. B Pharmacy
+5. Btech Bioinformetic
+6. Btech Civil Engineering
+7. Btech CSE Cloud Computing
+8. Btech CSE Cyber Security
+9. Btech CSE Artificial Intelligence
+10.Btech Data Science
+11.Btech DevOps
+12.Btech CSE Game Design and AR/VR
+13.Btech CSE Graphic Animations
+14. Btech Foodtechnology
+15.BA Journalism And Mass communication
+others</string>
+</resources>

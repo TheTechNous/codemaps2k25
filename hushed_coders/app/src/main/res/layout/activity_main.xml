@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome To India's No.1 Private University Shoolini University "
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/imageView18"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <ImageView
+        android:id="@+id/imageView18"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/jpg" />
+
+    <ScrollView
+        android:layout_width="393dp"
+        android:layout_height="622dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView18">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:paddingStart="8dp"
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:paddingStart="8dp"
+                android:paddingLeft="8dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="8dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="8dp"
+                android:text="Highlights No.1 Private University in India (Times Higher Education World University Rankings and QS World University Rankings). No.1 Research University (QS World University Rankings, Asia). All courses are NAAC accredited and approved by UGC, BCI, and PCI. Faculty from top organisations like McKinsey, PwC, HSBC, Citi IBM, Microsoft, IIT, IIM, IISc, Oxford, Stanford, Cambridge, and UC Berkeley. Faculty from top organisations like McKinsey, PwC, HSBC, Citi IBM, Microsoft, IIT, IIM, IISc, Oxford, Stanford, Cambridge, and UC Berkeley. ‘Mission 130’: 100% placements with 30% in top organisations. Top industry partners include IBM, Cognizant, Genpact, Mercer, Biocon, Cipla, Hindustan Unilever, L'Oréal, Deloitte, Adani, Accenture, and more. Students receive attractive research and overseas fellowships. One-Student-One-Patent policy that resulted in filing of 1500+ patents so far. 500+ Scholarships to deserving candidates for PhD, Postgraduate, and Undergraduate programs. Received Government grants like PURSE, SERB, DST FIST and more. Received Government grants like PURSE, SERB, DST FIST and more. Houses the XR and AI Research Centre and BOSCH Centre.Partnership with the ICT Academy, IBM, Microsoft, AWS Academy, Ikigai Lab, AADDOO, NASSCOM, KPMG, NHRDN, and LIBF. Courses Provides : B Com (Hons) (with/ without specialisation in ACCA) Eligibility 10+2 (in any stream) with minimum 50% marks  Duration 4 years B Design Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 4 Years B Design Leet Eligibility Diploma in Design with minimum 55% marks  Duration 3 Years B Pharmacy Eligibility 10+2 (PCB/PCM) with minimum 60% marks  Duration 4 years B Pharmacy (LEET) Eligibility Diploma in Pharmacy with 60% marks from an institution approved by Pharmacy Council of India  Duration 3 Years B Tech (Summit Research Program) Eligibility  Duration 4 Years B Tech Artificial Intelligence (LEET) Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech Artificial Intelligence (Smart Manufacturing/Electrical Vehicles/VLSI Design) Eligibility 10+2 with mathematics compulsory
+                 any of the two following subjects — physics / chemistry / computer science / electronics / information technology / biology / informatics practices / biotechnology / technical vocational subject / agriculture / engineering graphics / business studies / entrepreneurship and minimum 60% marks  Duration 4 years B Tech Bioinformatics Eligibility 10+2 with any of the three following subjects — physics /mathematics / chemistry / computer science / electronics / information technology / biology / informatics practices / biotechnology / technical vocational subject / agriculture / engineering graphics / business studies / entrepreneurship and minimum 60% marks  Duration 4 years B Tech Bioinformatics (LEET) Eligibility A diploma in any stream of Science, Engineering or Technology with minimum of 60% marks  Duration 3 Years B Tech Biotechnology Eligibility 10+2 with any of the three following subjects — physics /mathematics / chemistry / computer science / electronics / information technology / biology / informatics practices / biotechnology / technical vocational subject / agriculture / engineering graphics / business studies / entrepreneurship and minimum 60% marks  Duration 4 years B Tech Biotechnology (LEET) Eligibility A diploma in any stream of Science, Engineering or Technology with minimum of 60% marks  Duration 3 Years B Tech Civil Engineering (LEET) Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech Computer ScienceEngineering (CSE) Eligibility 10+2 with mathematics compulsory  any of the two following subjects — physics / chemistry / computer science / electronics / information technology / biology / informatics practices / biotechnology / technical vocational subject / agriculture / engineering graphics / business studies / entrepreneurship and minimum 60% marks  Duration 4 years B Tech CSE (LEET)  Blockchain  IoT Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech CSE (LEET) Data Science Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech CSE (LEET) DevOps Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech CSE (LEET) Game Design  AR/VR Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech CSE (LEET) Graphics and Animation  Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech CSE (with Specialisations) Eligibility 10+2 with mathematics compulsory  any of the two following subjects — physics / chemistry / computer science / electronics / information technology / biology / informatics practices / biotechnology / technical vocational subject / agriculture / engineering graphics / business studies / entrepreneurship and minimum 60% marks  Duration 4 years B Tech CSE Cyber Security (LEET) Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech CSE LEET Artificial Intelligence Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech CSE LEET Cloud Computing Eligibility A diploma in any stream of engineering or technology with minimum of 60% marks; mathematics compulsory  Duration 3 Years B Tech Food Technology Eligibility 10+2 with any of the three following subjects — physics /mathematics / chemistry / computer science / electronics / information technology / biology / informatics practices / biotechnology / technical vocational subject / agriculture / engineering graphics / business studies / entrepreneurship and minimum 60% marks  Duration 4 years B Tech Food Technology LEET Eligibility A diploma in any field of engineering or technology with minimum of 60% marks  Duration 3 years BA (Hons) with Specialisations Eligibility 10+2 (in any stream) with minimum 55% marks  Duration *This is a UGC approved NEP Program (students have exit options after 1st, 2nd and 3rd year) BA Journalism and Mass Communication with specialisations Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 3 years BA/ BSc (Hons) with specialisations Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 4 Years BA/ BSc (Hons) Yoga Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 4 years BA/BSc (Hons) Mathematics Eligibility  Duration 3 Years BALLB Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 5 years BBA Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 3 years BBA (With Specialisations) Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 4 Years BBA LLB Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 5 Years BCA (With Specialisations) Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 3 years BSc (Hons) Eligibility 10+2 in PCM/PCB with minimum 55% marks  Duration 4 Years BSc (Hons) Agriculture Eligibility 10+2 in PCM/ PCB with minimum 60% marks  Duration 4 years BSc (Hons) Biotechnology Eligibility 10+2 with at least one science subject  minimum 55% marks  Duration 4 years BSc (Hons) Botany Eligibility 10+2 in PCM/PCB with minimum 55% marks  Duration 4 years BSc (Hons) Chemistry Eligibility 10+2 in PCM/PCB with minimum 55% marks  Duration 4 years BSc (Hons) Dual degree with university of Melbourne Eligibility 10+2 in any stream with minimum 70% marks  Duration 4 Years BSc (Hons) Food Technology Eligibility 10+2 with at least one science subject minimum 55% marks  Duration 4 years BSc (Hons) Microbiology Eligibility 10+2 with at least one science subject minimum 55% marks  Duration 4 years BSc (Hons) Nutrition and Dietetics Eligibility 10+2 (in any stream) with minimum 55% marks  Duration 4 years BSc (Hons) Physics Eligibility 10+2 in PCM/PCB with minimum 55% marks  Duration 4 years BSc (Hons) Zoology Eligibility 10+2 in PCM/PCB with minimum 55% marks  Duration 4 years" />
+
+            <Button
+                android:id="@+id/button5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="60dp"
+                android:onClick="onclick"
+                android:text="Enter " />
+
+            <EditText
+                android:id="@+id/editTextText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Admin access(Username)"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/editTextText2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Admin Access(Password)"
+                android:inputType="text" />
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="60dp"
+                android:onClick="onclick2"
+                android:paddingBottom="6dp"
+                android:text="Admin_access" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
