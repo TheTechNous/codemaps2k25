@@ -75,25 +75,42 @@ jobs:
           g = Github(os.getenv('GITHUB_TOKEN'))
 
           def normalize_path(path):
-              """Normalize path to handle both Windows and Unix paths"""
+              """Normalize path to handle both Windows and Unix paths and any format"""
               if isinstance(path, Path):
                   path = str(path)
-              return str(Path(path.replace('\\', '/')))
+              # Remove any leading ./ or .\ and normalize slashes
+              path = re.sub(r'^\.[\\/]', '', str(path))
+              return path.replace('\\', '/')
 
           def get_main_folder_name(path):
-              """Extract only the main folder name from a path, handling all path formats"""
-              if not path:
+              """Extract only the main folder name from a path, handling any format"""
+              if not path or isinstance(path, (int, float, bool)):
                   return "Unknown"
               
-              # Normalize path
-              path = normalize_path(path)
-              
+              # Convert to string and normalize
+              path_str = str(path)
               # Remove leading ./ or .\ and split
-              path = re.sub(r'^\.[\\/]', '', path)
-              
-              # Get first part of path that's not empty or hidden
-              parts = [p for p in path.split('/') if p and not p.startswith('.')]
-              return parts[0] if parts else "Unknown"
+              clean_path = re.sub(r'^\.[\\/]', '', path_str)
+              # Split by both forward and backward slashes
+              parts = re.split(r'[\\/]', clean_path)
+              # Get first non-empty part that's not a dot
+              for part in parts:
+                  if part and not part.startswith('.'):
+                      return part
+              return "Unknown"
+
+          def process_file_path(path):
+              """Process and validate file path"""
+              try:
+                  if not path:
+                      return None
+                  # Convert to string if it's a Path object
+                  path_str = str(path)
+                  # Remove any invalid characters and normalize slashes
+                  clean_path = re.sub(r'[<>:"|?*]', '', path_str)
+                  return clean_path.replace('\\', '/')
+              except Exception:
+                  return None
 
           def get_file_list(directory):
               """Get list of files while handling path errors"""
@@ -245,9 +262,12 @@ jobs:
               language_files = []
               for folder in solution_folders:
                   try:
-                      folder_path = normalize_path(folder)
-                      for ext in lang_extensions:
-                          language_files.extend(Path(folder_path).glob(f"**/*{ext}"))
+                      folder_path = process_file_path(folder)
+                      if folder_path:
+                          for ext in lang_extensions:
+                              # Use rglob to find all matching files
+                              found_files = Path(folder_path).rglob(f"*{ext}")
+                              language_files.extend([f for f in found_files if f.is_file()])
                   except Exception as e:
                       print(f"{Fore.RED}Error processing folder {folder}: {e}{Style.RESET_ALL}")
                       continue
@@ -427,17 +447,19 @@ jobs:
                   else:
                       plagiarism_max[file_path] = 0
 
-          # Save results with normalized paths
+          # Save results with proper path handling
           with open("plagiarism_results.json", "w") as f:
               normalized_results = []
               for result in results:
                   normalized_result = result.copy()
                   if 'file1' in result:
-                      normalized_result['file1'] = normalize_path(result['file1'])
+                      path1 = process_file_path(result['file1'])
+                      normalized_result['file1'] = path1 if path1 else str(result['file1'])
                   if 'file2' in result:
-                      normalized_result['file2'] = normalize_path(result['file2'])
+                      path2 = process_file_path(result['file2'])
+                      normalized_result['file2'] = path2 if path2 else str(result['file2'])
                   normalized_results.append(normalized_result)
-                  
+              
               json.dump({
                   'detailed_results': normalized_results,
                   'plagiarism_max': plagiarism_max,
