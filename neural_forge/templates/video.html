@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title contenteditable="true">Video Editor Portfolio | Your Name</title>
+    <style>
+        :root {
+            --primary: #00a8ff; /* Professional blue */
+            --secondary: #00d2d3; /* Teal accent */
+            --dark: #121212; /* Deep dark */
+            --darker: #0a0a0a; /* Almost black */
+            --light: #e0e0e0; /* Soft white */
+            --lighter: #ffffff; /* Pure white */
+            --accent: #00ffaa; /* Bright teal for highlights */
+            --text: #b0b0b0; /* Medium gray */
+            --bg: #1a1a1a; /* Dark background */
+            --card-bg: #252525; /* Card backgrounds */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--darker);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation - Professional Dark */
+        .navbar {
+            background-color: rgba(10, 10, 10, 0.95);
+            padding: 1.5rem 5%;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(0, 168, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--lighter);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section - Cinematic Dark */
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            margin-top: 80px;
+            overflow: hidden;
+            background-color: var(--darker);
+        }
+
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.12;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 1.5rem;
+            color: var(--lighter);
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .hero h2 {
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 400;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            color: var(--text);
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-block;
+            padding: 0.9rem 2.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--darker);
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 168, 255, 0.3);
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 168, 255, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            margin-left: 1rem;
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--darker);
+            border-color: transparent;
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 6rem 5%;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--lighter);
+            display: inline-block;
+            position: relative;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            bottom: -12px;
+            left: 25%;
+            border-radius: 3px;
+        }
+
+        /* About Section */
+        .about {
+            background-color: var(--bg);
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-reel {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: all 0.5s ease;
+        }
+
+        .about-reel:hover {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+
+        .about-reel video {
+            width: 100%;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid var(--primary);
+        }
+
+        .play-button:hover {
+            background: rgba(0, 168, 255, 0.3);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .play-button i {
+            color: var(--lighter);
+            font-size: 1.8rem;
+            margin-left: 5px;
+        }
+
+        .about-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--lighter);
+            font-weight: 600;
+        }
+
+        .about-text p {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* Skills Section */
+        .skills {
+            background-color: var(--darker);
+        }
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 2rem;
+        }
+
+        .skill-card {
+            background: var(--card-bg);
+            padding: 2.5rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .skill-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 168, 255, 0.15);
+            border-color: rgba(0, 168, 255, 0.2);
+        }
+
+        .skill-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+
+        .skill-card:hover .skill-icon {
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .skill-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--lighter);
+            font-weight: 600;
+        }
+
+        .skill-card p {
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        /* Portfolio Section */
+        .portfolio {
+            background-color: var(--bg);
+            padding: 6rem 0;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2.5rem;
+            padding: 0 5%;
+        }
+
+        .portfolio-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            aspect-ratio: 16/9;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 168, 255, 0.2);
+            border-color: rgba(0, 168, 255, 0.3);
+        }
+
+        .portfolio-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1);
+        }
+
+        .portfolio-item:hover video {
+            transform: scale(1.05);
+        }
+
+        .portfolio-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 30%, transparent 100%);
+            padding: 2rem 1.5rem;
+            color: white;
+            transform: translateY(100%);
+            transition: all 0.4s ease;
+            z-index: 2;
+        }
+
+        .portfolio-item:hover .portfolio-overlay {
+            transform: translateY(0);
+        }
+
+        .portfolio-overlay h3 {
+            margin-bottom: 0.75rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--lighter);
+        }
+
+        .portfolio-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+
+        .portfolio-tag {
+            background: rgba(0, 168, 255, 0.15);
+            color: var(--primary);
+            padding: 0.4rem 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 168, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .portfolio-tag:hover {
+            background: rgba(0, 168, 255, 0.3);
+            color: var(--lighter);
+        }
+
+        /* Experience Section */
+        .experience {
+            background-color: var(--darker);
+            padding: 6rem 0;
+        }
+
+        .experience-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+            padding: 0 5%;
+        }
+
+        .experience-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .experience-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+            transition: height 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .experience-card:hover::before {
+            height: 100%;
+        }
+
+        .experience-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 168, 255, 0.15);
+            border-color: rgba(0, 168, 255, 0.3);
+        }
+
+        .experience-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--lighter);
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+        }
+
+        .experience-date {
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+            display: block;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .experience-card ul {
+            padding-left: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .experience-card li {
+            margin-bottom: 0.75rem;
+            position: relative;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .experience-card li::before {
+            content: '▹';
+            position: absolute;
+            left: -1.5rem;
+            color: var(--primary);
+        }
+
+        /* Clients Section */
+        .clients {
+            background-color: var(--bg);
+            padding: 5rem 0;
+        }
+
+        .client-logos {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 4rem;
+            padding: 0 5%;
+        }
+
+        .client-logo {
+            max-width: 150px;
+            filter: grayscale(100%) brightness(0.8);
+            opacity: 0.7;
+            transition: all 0.4s ease;
+        }
+
+        .client-logo:hover {
+            filter: grayscale(0%) brightness(1);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        /* Contact Section */
+        .contact {
+            background-color: var(--darker);
+            padding: 6rem 0;
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--darker);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .contact-item:hover .contact-icon {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .contact-text h3 {
+            color: var(--lighter);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .contact-text p {
+            color: var(--text);
+        }
+
+        .contact-form {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--lighter);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 168, 255, 0.2);
+        }
+
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: var(--text);
+            text-align: center;
+            padding: 5rem 0 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-links a {
+            color: var(--text);
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .social-links a:hover {
+            transform: translateY(-5px);
+            color: var(--primary);
+            background: rgba(0, 168, 255, 0.1);
+        }
+
+        .copyright {
+            opacity: 0.7;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .about-content,
+            .contact-container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .about-reel {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem 5%;
+            }
+            
+            .nav-links {
+                gap: 1.5rem;
+            }
+            
+            .hero {
+                text-align: center;
+                padding: 6rem 5% 3rem;
+            }
+            
+            .hero p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .btn {
+                display: block;
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+            
+            .btn-outline {
+                margin-left: 0;
+            }
+            
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .section {
+                padding: 4rem 5%;
+            }
+            
+            .skills-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .client-logos {
+                gap: 2rem;
+            }
+            
+            .client-logo {
+                max-width: 120px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="#" class="logo" contenteditable="true">VIDEO EDITOR</a>
+        <div class="nav-links">
+            <a href="#about" contenteditable="true">About</a>
+            <a href="#skills" contenteditable="true">Skills</a>
+            <a href="#portfolio" contenteditable="true">Portfolio</a>
+            <a href="#experience" contenteditable="true">Experience</a>
+            <a href="#contact" contenteditable="true">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <video autoplay muted loop class="video-background">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-waves-in-the-water-1164-large.mp4" type="video/mp4">
+        </video>
+        <div class="hero-content">
+            <h1 contenteditable="true">I'm <span>Your Name</span></h1>
+            <h2 contenteditable="true">Professional Video Editor & Motion Designer</h2>
+            <p contenteditable="true">Specializing in cinematic storytelling, commercial editing, and visual effects. Bringing your vision to life through the art of editing.</p>
+            <div>
+                <a href="#portfolio" class="btn" contenteditable="true">View My Work</a>
+                <a href="#contact" class="btn btn-outline" contenteditable="true">Get In Touch</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section about">
+        <div class="section-title">
+            <h2 contenteditable="true">About Me</h2>
+        </div>
+        <div class="about-content">
+            <div class="about-reel">
+                <video poster="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80">
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4" type="video/mp4">
+                </video>
+                <div class="play-button">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
+            <div class="about-text">
+                <h3 contenteditable="true">My Editing Philosophy</h3>
+                <p contenteditable="true">With over 7 years of professional experience, I specialize in creating compelling visual narratives that engage audiences and deliver results. My approach combines technical expertise with artistic vision to produce videos that stand out.</p>
+                <p contenteditable="true">I believe great editing is invisible - it should serve the story without drawing attention to itself. My work focuses on pacing, rhythm, and emotional impact to create memorable viewing experiences.</p>
+                <p contenteditable="true">When I'm not editing, you can find me shooting my own footage, experimenting with new techniques, or teaching aspiring editors.</p>
+                <div class="about-details">
+                    <p contenteditable="true"><strong>Specialties:</strong> Commercials, Music Videos, Corporate Videos</p>
+                    <p contenteditable="true"><strong>Based In:</strong> Los Angeles, CA</p>
+                    <p contenteditable="true"><strong>Email:</strong> your.email@example.com</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section skills">
+        <div class="section-title">
+            <h2 contenteditable="true">My Skills</h2>
+        </div>
+        <div class="skills-container">
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fas fa-film"></i>
+                </div>
+                <h3 contenteditable="true">Video Editing</h3>
+                <p contenteditable="true">Professional editing for all types of content</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fas fa-magic"></i>
+                </div>
+                <h3 contenteditable="true">Color Grading</h3>
+                <p contenteditable="true">Creating cinematic looks and styles</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fas fa-running"></i>
+                </div>
+                <h3 contenteditable="true">Motion Graphics</h3>
+                <p contenteditable="true">Dynamic animations and titles</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fas fa-music"></i>
+                </div>
+                <h3 contenteditable="true">Sound Design</h3>
+                <p contenteditable="true">Enhancing audio for maximum impact</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fas fa-vr-cardboard"></i>
+                </div>
+                <h3 contenteditable="true">Visual Effects</h3>
+                <p contenteditable="true">Compositing and CGI integration</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h3 contenteditable="true">Cinematography</h3>
+                <p contenteditable="true">Shooting footage when needed</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="section portfolio">
+        <div class="section-title">
+            <h2 contenteditable="true">Portfolio</h2>
+        </div>
+        <div class="portfolio-grid">
+            <div class="portfolio-item">
+                <video muted loop>
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-woman-dancing-under-neon-lights-1230-large.mp4" type="video/mp4">
+                </video>
+                <div class="portfolio-overlay">
+                    <h3 contenteditable="true">Music Video - "Neon Dreams"</h3>
+                    <div class="portfolio-tags">
+                        <span class="portfolio-tag" contenteditable="true">Editing</span>
+                        <span class="portfolio-tag" contenteditable="true">Color Grading</span>
+                        <span class="portfolio-tag" contenteditable="true">VFX</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <video muted loop>
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-man-runs-past-ground-level-shot-32809-large.mp4" type="video/mp4">
+                </video>
+                <div class="portfolio-overlay">
+                    <h3 contenteditable="true">Sports Commercial</h3>
+                    <div class="portfolio-tags">
+                        <span class="portfolio-tag" contenteditable="true">Editing</span>
+                        <span class="portfolio-tag" contenteditable="true">Motion Graphics</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <video muted loop>
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-womans-hands-typing-on-a-laptop-3988-large.mp4" type="video/mp4">
+                </video>
+                <div class="portfolio-overlay">
+                    <h3 contenteditable="true">Corporate Video</h3>
+                    <div class="portfolio-tags">
+                        <span class="portfolio-tag" contenteditable="true">Editing</span>
+                        <span class="portfolio-tag" contenteditable="true">Sound Design</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <video muted loop>
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-portrait-of-a-woman-in-a-pool-1259-large.mp4" type="video/mp4">
+                </video>
+                <div class="portfolio-overlay">
+                    <h3 contenteditable="true">Short Film - "Reflections"</h3>
+                    <div class="portfolio-tags">
+                        <span class="portfolio-tag" contenteditable="true">Editing</span>
+                        <span class="portfolio-tag" contenteditable="true">Color Grading</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <video muted loop>
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-woman-walking-on-a-running-machine-3349-large.mp4" type="video/mp4">
+                </video>
+                <div class="portfolio-overlay">
+                    <h3 contenteditable="true">Fitness Promo</h3>
+                    <div class="portfolio-tags">
+                        <span class="portfolio-tag" contenteditable="true">Editing</span>
+                        <span class="portfolio-tag" contenteditable="true">Motion Graphics</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-item">
+                <video muted loop>
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-stylish-man-in-a-modern-loft-31545-large.mp4" type="video/mp4">
+                </video>
+                <div class="portfolio-overlay">
+                    <h3 contenteditable="true">Fashion Film</h3>
+                    <div class="portfolio-tags">
+                        <span class="portfolio-tag" contenteditable="true">Editing</span>
+                        <span class="portfolio-tag" contenteditable="true">Color Grading</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="section experience">
+        <div class="section-title">
+            <h2 contenteditable="true">Experience</h2>
+        </div>
+        <div class="experience-container">
+            <div class="experience-card">
+                <h3 contenteditable="true">Senior Video Editor</h3>
+                <span class="experience-date" contenteditable="true">2020 - Present</span>
+                <p contenteditable="true">Creative Media Studios</p>
+                <ul>
+                    <li contenteditable="true">Lead editor for commercial projects</li>
+                    <li contenteditable="true">Supervised junior editing team</li>
+                    <li contenteditable="true">Developed studio editing workflows</li>
+                </ul>
+            </div>
+
+            <div class="experience-card">
+                <h3 contenteditable="true">Freelance Video Editor</h3>
+                <span class="experience-date" contenteditable="true">2017 - 2020</span>
+                <p contenteditable="true">Various Clients</p>
+                <ul>
+                    <li contenteditable="true">Edited music videos and short films</li>
+                    <li contenteditable="true">Created corporate video content</li>
+                    <li contenteditable="true">Developed motion graphics packages</li>
+                </ul>
+            </div>
+
+            <div class="experience-card">
+                <h3 contenteditable="true">Assistant Editor</h3>
+                <span class="experience-date" contenteditable="true">2015 - 2017</span>
+                <p contenteditable="true">Post Production House</p>
+                <ul>
+                    <li contenteditable="true">Prepared footage for editors</li>
+                    <li contenteditable="true">Managed media assets</li>
+                    <li contenteditable="true">Assisted with color correction</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clients Section -->
+    <section id="clients" class="section clients">
+        <div class="section-title">
+            <h2 contenteditable="true">Clients</h2>
+        </div>
+        <div class="client-logos">
+            <img src="https://via.placeholder.com/150x60?text=Client+1" alt="Client Logo" class="client-logo" contenteditable="true">
+            <img src="https://via.placeholder.com/150x60?text=Client+2" alt="Client Logo" class="client-logo" contenteditable="true">
+            <img src="https://via.placeholder.com/150x60?text=Client+3" alt="Client Logo" class="client-logo" contenteditable="true">
+            <img src="https://via.placeholder.com/150x60?text=Client+4" alt="Client Logo" class="client-logo" contenteditable="true">
+            <img src="https://via.placeholder.com/150x60?text=Client+5" alt="Client Logo" class="client-logo" contenteditable="true">
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section contact">
+        <div class="section-title">
+            <h2 contenteditable="true">Get In Touch</h2>
+        </div>
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h3 contenteditable="true">Location</h3>
+                        <p contenteditable="true">Los Angeles, CA</p>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h3 contenteditable="true">Email</h3>
+                        <p contenteditable="true">contact@yourportfolio.com</p>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h3 contenteditable="true">Phone</h3>
+                        <p contenteditable="true">(123) 456-7890</p>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h3 contenteditable="true">Availability</h3>
+                        <p contenteditable="true">Available for new projects</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-form">
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Your Name" required contenteditable="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="email" class="form-control" placeholder="Your Email" required contenteditable="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Project Type" contenteditable="true">
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" placeholder="Tell me about your project" required contenteditable="true"></textarea>
+                    </div>
+                    <button type="submit" class="btn" contenteditable="true">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo" contenteditable="true">VIDEO EDITOR</div>
+            <p contenteditable="true">Bringing stories to life through the art of editing.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-vimeo-v"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <div class="footer-links">
+                <a href="#about" contenteditable="true">About</a>
+                <a href="#portfolio" contenteditable="true">Portfolio</a>
+                <a href="#experience" contenteditable="true">Experience</a>
+                <a href="#contact" contenteditable="true">Contact</a>
+            </div>
+            <div class="copyright" contenteditable="true">© 2023 Your Name. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script>
+        // Play button functionality for about reel
+        document.querySelector('.play-button').addEventListener('click', function() {
+            const video = document.querySelector('.about-reel video');
+            if(video.paused) {
+                video.play();
+                this.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                video.pause();
+                this.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+
+        // Auto-play portfolio videos on hover
+        const portfolioItems = document.querySelectorAll('.portfolio-item');
+        portfolioItems.forEach(item => {
+            const video = item.querySelector('video');
+            
+            item.addEventListener('mouseenter', () => {
+                video.play();
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

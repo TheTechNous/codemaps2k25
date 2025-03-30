@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Editor | {{ resume.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --accent: #f72585;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --text: #2b2d42;
+            --text-light: #6c757d;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        #resume-container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        .contact-info a {
+            color: var(--primary);
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .skill-badge {
+            background-color: var(--light);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .editable {
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+            min-height: 1.5rem;
+        }
+
+        .editable:hover {
+            background-color: var(--light);
+        }
+
+        .editing {
+            background-color: var(--light);
+            outline: 2px solid var(--primary);
+        }
+
+        .progress {
+            height: 1.5rem;
+            background-color: var(--light);
+        }
+
+        .progress-bar {
+            background-color: var(--primary);
+        }
+
+        .action-buttons {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: none;
+                padding: 0;
+            }
+            #resume-container {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light no-print">
+        <div class="container">
+            <a class="navbar-brand logo" href="/">PortCraft</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <button id="logoutBtn" class="btn btn-outline-danger ms-2">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div id="alerts-container" class="no-print"></div>
+
+        <div class="mb-4 no-print">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-edit text-primary me-2"></i>Resume Editor</h2>
+                <div class="action-buttons">
+                    <button id="saveBtn" class="btn btn-primary me-2">
+                        <span class="spinner-border spinner-border-sm d-none"></span>
+                        <i class="fas fa-save me-1"></i> Save
+                    </button>
+                    <button id="downloadBtn" class="btn btn-success">
+                        <span class="spinner-border spinner-border-sm d-none"></span>
+                        <i class="fas fa-file-pdf me-1"></i> PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div class="progress mt-3">
+                <div class="progress-bar" style="width: {{ resume.accuracy_score }}%">
+                    Analysis Accuracy: {{ resume.accuracy_score }}%
+                </div>
+            </div>
+        </div>
+
+        <div id="resume-container">
+            <!-- Header Section -->
+            <div class="text-center mb-4">
+                <h1 id="name" class="editable" data-editable="true" style="color: var(--primary);">
+                    {{ resume.name or "Your Name" }}
+                </h1>
+                <h3 id="expert" class="editable text-muted" data-editable="true">
+                    {{ resume.expert or "Your Profession" }}
+                </h3>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="section">
+                <div class="contact-info d-flex flex-wrap">
+                    <a id="email" class="editable" data-editable="true" href="mailto:{{ resume.email or 'your.email@example.com' }}">
+                        <i class="fas fa-envelope"></i> {{ resume.email or "your.email@example.com" }}
+                    </a>
+                    <a id="linkedin" class="editable" data-editable="true" 
+                       href="{{ resume.linkedin if resume.linkedin != '#' else '#' }}" target="_blank">
+                        <i class="fab fa-linkedin"></i> {{ "LinkedIn" if resume.linkedin != "#" else "Add LinkedIn" }}
+                    </a>
+                    <a id="github" class="editable" data-editable="true" 
+                       href="{{ resume.github if resume.github != '#' else '#' }}" target="_blank">
+                        <i class="fab fa-github"></i> {{ "GitHub" if resume.github != "#" else "Add GitHub" }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="section">
+                <h3 class="section-title"><i class="fas fa-user"></i> Summary</h3>
+                <p id="summary" class="editable" data-editable="true">
+                    {{ resume.summary or "Experienced professional with a demonstrated history of working in the industry. Skilled in various technologies and methodologies. Strong professional with a degree focused in relevant field." }}
+                </p>
+            </div>
+
+            <!-- Skills Section -->
+            <div class="section">
+                <h3 class="section-title"><i class="fas fa-code"></i> Skills</h3>
+                <div id="skills" class="skills-grid">
+                    {% if resume.skills and resume.skills|length > 0 %}
+                        {% for skill in resume.skills %}
+                        <div class="skill-badge editable" data-editable="true">{{ skill }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="skill-badge editable" data-editable="true">Add your first skill</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Experience Section -->
+            <div class="section">
+                <h3 class="section-title"><i class="fas fa-briefcase"></i> Experience</h3>
+                <div id="experience">
+                    {% if resume.experience and resume.experience|length > 0 %}
+                        {% for exp in resume.experience %}
+                        <div class="editable mb-3" data-editable="true">{{ exp }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="editable" data-editable="true">Add your work experience</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Education Section -->
+            <div class="section">
+                <h3 class="section-title"><i class="fas fa-graduation-cap"></i> Education</h3>
+                <div id="education">
+                    {% if resume.education and resume.education|length > 0 %}
+                        {% for edu in resume.education %}
+                        <div class="editable mb-3" data-editable="true">{{ edu }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="editable" data-editable="true">Add your education</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Projects Section -->
+            <div class="section">
+                <h3 class="section-title"><i class="fas fa-project-diagram"></i> Projects</h3>
+                <div id="projects">
+                    {% if resume.projects and resume.projects|length > 0 %}
+                        {% for project in resume.projects %}
+                        <div class="editable mb-3" data-editable="true">{{ project }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="editable" data-editable="true">Add your projects</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Certifications Section -->
+            {% if resume.certifications and resume.certifications|length > 0 %}
+            <div class="section">
+                <h3 class="section-title"><i class="fas fa-certificate"></i> Certifications</h3>
+                <div id="certifications">
+                    {% for cert in resume.certifications %}
+                    <div class="editable mb-3" data-editable="true">{{ cert }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Achievements Section -->
+            {% if resume.achievements and resume.achievements|length > 0 %}
+            <div class="section">
+                <h3 class="section-title"><i class="fas fa-trophy"></i> Achievements</h3>
+                <div id="achievements">
+                    {% for achievement in resume.achievements %}
+                    <div class="editable mb-3" data-editable="true">{{ achievement }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Make all editable fields interactive
+            const editableFields = document.querySelectorAll('[data-editable="true"]');
+            
+            editableFields.forEach(field => {
+                field.setAttribute('contenteditable', 'true');
+                
+                field.addEventListener('focus', function() {
+                    this.classList.add('editing');
+                });
+                
+                field.addEventListener('blur', function() {
+                    this.classList.remove('editing');
+                });
+            });
+
+            // Save functionality
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                const btn = this;
+                const spinner = btn.querySelector('.spinner-border');
+                const btnText = btn.querySelector('.btn-text');
+                
+                btn.disabled = true;
+                spinner.classList.remove('d-none');
+                btnText.textContent = 'Saving...';
+                
+                // Collect all edited data
+                const resumeData = {
+                    name: document.getElementById('name').textContent,
+                    expert: document.getElementById('expert').textContent,
+                    summary: document.getElementById('summary').textContent,
+                    email: document.getElementById('email').textContent,
+                    linkedin: document.getElementById('linkedin').getAttribute('href'),
+                    github: document.getElementById('github').getAttribute('href'),
+                    skills: Array.from(document.querySelectorAll('#skills .skill-badge')).map(el => el.textContent),
+                    experience: Array.from(document.querySelectorAll('#experience > div')).map(el => el.textContent),
+                    education: Array.from(document.querySelectorAll('#education > div')).map(el => el.textContent),
+                    projects: Array.from(document.querySelectorAll('#projects > div')).map(el => el.textContent),
+                    certifications: Array.from(document.querySelectorAll('#certifications > div')).map(el => el.textContent),
+                    achievements: Array.from(document.querySelectorAll('#achievements > div')).map(el => el.textContent)
+                };
+                
+                // Send to server
+                fetch('/save_resume', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify(resumeData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    showAlert('Resume saved successfully!', 'success');
+                })
+                .catch(error => {
+                    showAlert('Failed to save resume', 'danger');
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    spinner.classList.add('d-none');
+                    btnText.textContent = 'Save';
+                });
+            });
+
+            // PDF Download functionality
+            document.getElementById('downloadBtn').addEventListener('click', function() {
+                const btn = this;
+                const spinner = btn.querySelector('.spinner-border');
+                const btnText = btn.querySelector('.btn-text');
+                
+                btn.disabled = true;
+                spinner.classList.remove('d-none');
+                btnText.textContent = 'Generating...';
+                
+                const element = document.getElementById('resume-container');
+                const opt = {
+                    margin: 10,
+                    filename: 'my_resume.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                
+                html2pdf().from(element).set(opt).save()
+                    .then(() => {
+                        showAlert('PDF downloaded successfully!', 'success');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        spinner.classList.add('d-none');
+                        btnText.textContent = 'PDF';
+                    });
+            });
+
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                fetch('/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/';
+                    }
+                });
+            });
+
+            // Helper function to show alerts
+            function showAlert(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                const container = document.getElementById('alerts-container');
+                container.prepend(alertDiv);
+                
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.remove(), 300);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

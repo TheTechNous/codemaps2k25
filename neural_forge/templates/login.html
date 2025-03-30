@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login / Signup - Portfolio Maker</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body class="dark-theme">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo"><a href="home_updated.html">Portfolio Maker</a></div>
+    <ul>
+      <!-- <li><a href="index.html">Home</a></li> -->
+      <!-- <li><a href="about.html">About</a></li> -->
+      <li><a href="login.html" class="active">Login/Signup</a></li>
+    </ul>
+  </nav>
+
+  <!-- Login/Signup Container -->
+  <div class="auth-page">
+    <div class="auth-panel" id="loginPanel">
+      <h2>Login</h2>
+      <p>Please enter your login details to continue.</p>
+      <input type="email" placeholder="Email Address" />
+      <input type="password" placeholder="Password" />
+      <div class="login-options">
+        <label><input type="checkbox" /> Keep me signed in</label>
+        <a href="#">Forgot password?</a>
+      </div>
+      <button class="btn primary-btn" id="loginBtn">Log In</button>
+      <p class="switch-text">
+        Don't have an account?
+        <a href="#" onclick="showSignup()">Sign Up</a>
+      </p>
+      <div class="social-separator">
+        <span>Or continue with</span>
+      </div>
+      <div class="social-login">
+        <img src="{{url_for('static', filename = 'icons/google.png')}}" alt="Google">
+        <img src="{{url_for('static', filename = 'icons/facebook.png')}}" alt="Facebook">
+        <img src="{{url_for('static', filename = 'icons/apple.png')}}" alt="Apple">
+        <img src="{{url_for('static', filename = 'icons/twitter.png')}}" alt="Twitter">
+      </div>
+      <button class="btn guest-btn" id="guestBtn">Continue as Guest</button>
+    </div>
+
+    <div class="auth-panel hidden" id="signupPanel">
+      <h2>Sign Up</h2>
+      <p>Create your account in seconds.</p>
+      <input type="text" placeholder="Full Name" />
+      <input type="email" placeholder="Email Address" />
+      <input type="password" placeholder="Password" />
+      <input type="password" placeholder="Confirm Password" />
+      <label class="terms-label">
+        <input type="checkbox" /> I agree to the <a href="#">Terms &amp; Conditions</a>
+      </label>
+      <button class="btn primary-btn" id="signupBtn">Create Account</button>
+      <p class="switch-text">
+        Already have an account?
+        <a href="#" onclick="showLogin()">Log In</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Contact Us</a>
+    </div>
+    <div class="social-icons">
+      <a href="#"><img src="{{ url_for('static', filename='icons/facebook.png') }}" alt="Facebook"></a>
+      <a href="#"><img src="{{ url_for('static', filename='icons/twitter.png') }}" alt="Twitter"></a>
+      <a href="#"><img src="{{ url_for('static', filename='icons/linkedin.png') }}" alt="LinkedIn"></a>
+    </div>
+  </footer>
+
+  <!-- JavaScript for toggling forms -->
+  <script>
+    function showLogin() {
+      document.getElementById('loginPanel').classList.remove('hidden');
+      document.getElementById('signupPanel').classList.add('hidden');
+    }
+    function showSignup() {
+      document.getElementById('signupPanel').classList.remove('hidden');
+      document.getElementById('loginPanel').classList.add('hidden');
+    }
+    document.getElementById('loginBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert('Logged in (demo). Redirecting to Updated Home...');
+      window.location.href = 'home-updated.html';
+    });
+    document.getElementById('signupBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert('Signed up (demo). Redirecting to Updated Home...');
+      window.location.href = 'home-updated.html';
+    });
+    document.getElementById('guestBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = 'home-updated.html';
+    });
+  </script>
+</body>
+</html>

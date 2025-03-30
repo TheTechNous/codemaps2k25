@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Template Studio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --accent: #f72585;
+            --dark: #1a1a2e;
+            --darker: #0f0f1a;
+            --light: #f8f9fa;
+            --lighter: #ffffff;
+            --text: #2b2d42;
+            --text-light: #6c757d;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #ef233c;
+            --font-main: 'Poppins', sans-serif;
+            --font-heading: 'Montserrat', sans-serif;
+            --font-code: 'Roboto', sans-serif;
+            --font-size: 16px;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            font-size: var(--font-size);
+            color: var(--text);
+            background-color: var(--bg);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Template Selection Sidebar */
+        .template-sidebar {
+            width: 380px;
+            background-color: var(--darker);
+            color: var(--light);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: transform 0.4s ease-out;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--lighter);
+            letter-spacing: 0.5px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .template-categories {
+            margin-bottom: 1.5rem;
+        }
+
+        .category-title {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-title i {
+            font-size: 0.9rem;
+        }
+
+        .template-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .template-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .template-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary);
+        }
+
+        .template-item.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+        }
+
+        .template-item.active::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 28px;
+            height: 28px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .template-item.dragging {
+            opacity: 0.7;
+            transform: scale(0.98);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .template-thumbnail {
+            height: 160px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .template-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .template-item:hover .template-thumbnail img {
+            transform: scale(1.05);
+        }
+
+        .template-info {
+            padding: 1.25rem;
+        }
+
+        .template-info h3 {
+            font-family: var(--font-heading);
+            margin-bottom: 0.5rem;
+            color: var(--lighter);
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .template-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .template-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Preview Area */
+        .preview-area {
+            flex: 1;
+            margin-left: 380px;
+            position: relative;
+            background-color: var(--bg);
+        }
+
+        .preview-header {
+            position: fixed;
+            top: 0;
+            left: 380px;
+            right: 0;
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            z-index: 90;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .preview-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Template Preview */
+        .template-preview-container {
+            padding-top: 70px;
+            height: calc(100vh - 70px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: white;
+            box-shadow: var(--box-shadow);
+        }
+
+        .empty-workspace {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .empty-workspace-icon {
+            font-size: 4rem;
+            color: var(--primary-light);
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+        }
+
+        .empty-workspace h3 {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .empty-workspace p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--primary-light);
+            border-radius: var(--border-radius);
+            padding: 3rem 2rem;
+            background-color: rgba(67, 97, 238, 0.05);
+            transition: var(--transition);
+        }
+
+        .drop-zone.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            border-color: var(--primary);
+        }
+
+        .drop-zone i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .drop-zone h4 {
+            font-family: var(--font-heading);
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .drop-zone p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Customization Panel */
+        .customization-panel {
+            position: fixed;
+            bottom: 0;
+            left: 380px;
+            right: 0;
+            background-color: var(--card-bg);
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 2rem;
+            z-index: 100;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-top: 1px solid var(--border);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .customization-panel.active {
+            transform: translateY(0);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-header h3 {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            color: var(--text);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .panel-header h3 i {
+            color: var(--primary);
+        }
+
+        .close-panel {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: var(--transition);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-panel:hover {
+            background-color: var(--light);
+            color: var(--danger);
+        }
+
+        .customization-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .option-group {
+            margin-bottom: 1rem;
+        }
+
+        .option-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .option-group input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            padding: 0.25rem;
+            background-color: var(--lighter);
+        }
+
+        .option-group select,
+        .option-group input[type="text"],
+        .option-group input[type="number"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background-color: var(--lighter);
+        }
+
+        .option-group select:focus,
+        .option-group input[type="text"]:focus,
+        .option-group input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        .option-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--border-radius);
+            margin-right: 0.75rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-main);
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .option-btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option-btn.secondary {
+            background-color: var(--light);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .option-btn.secondary:hover {
+            background-color: var(--lighter);
+            border-color: var(--primary-light);
+        }
+        
+        .option-btn.danger {
+            background-color: var(--light);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        
+        .option-btn.danger:hover {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background-color: var(--light);
+            padding: 1.25rem;
+            border-radius: var(--border-radius);
+            border: 1px dashed var(--border);
+        }
+        
+        #imageElementSelect {
+            margin-bottom: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background-color: var(--lighter);
+            font-family: var(--font-main);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .upload-area i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* Image Customization Options */
+        .image-options {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.03);
+            border-radius: var(--border-radius);
+        }
+        
+        .image-options.active {
+            display: block;
+        }
+        
+        .image-option-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .image-option-group {
+            flex: 1;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--light);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            z-index: 1000;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: var(--transition);
+        }
+        
+        .mobile-menu-btn:hover {
+            background-color: var(--primary-light);
+            transform: scale(1.05);
+        }
+        
+        /* Customize Button */
+        .customize-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 90;
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .customize-btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Drag Indicator */
+        .drag-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .drag-indicator i {
+            font-size: 1rem;
+        }
+
+        /* Template Action Button */
+        .template-action-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .template-item:hover .template-action-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .template-sidebar {
+                width: 320px;
+            }
+            .preview-area {
+                margin-left: 320px;
+            }
+            .preview-header {
+                left: 320px;
+            }
+            .customization-panel {
+                left: 320px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .template-sidebar {
+                width: 280px;
+            }
+            .preview-area {
+                margin-left: 280px;
+            }
+            .preview-header {
+                left: 280px;
+            }
+            .customization-panel {
+                left: 280px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .template-sidebar {
+                transform: translateX(-100%);
+                width: 300px;
+            }
+            .template-sidebar.active {
+                transform: translateX(0);
+            }
+            .preview-area {
+                margin-left: 0;
+            }
+            .preview-header {
+                left: 0;
+            }
+            .customization-panel {
+                left: 0;
+            }
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .customization-options {
+                grid-template-columns: 1fr;
+            }
+            .option-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .preview-header {
+                padding: 1rem;
+            }
+            .panel-header h3 {
+                font-size: 1.1rem;
+            }
+            .customization-panel {
+                padding: 1.25rem;
+            }
+            .image-option-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .template-item {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .template-item:nth-child(1) { animation-delay: 0.1s; }
+        .template-item:nth-child(2) { animation-delay: 0.2s; }
+        .template-item:nth-child(3) { animation-delay: 0.3s; }
+
+        /* Notification CSS */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: var(--dark);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning);
+        }
+        
+        .notification.info {
+            background-color: var(--primary);
+        }
+        
+        .notification i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Template Selection Sidebar -->
+        <div class="template-sidebar" id="templateSidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-palette logo-icon"></i>
+                    <h2>Portfolio Studio</h2>
+                </div>
+            </div>
+            
+            <!-- Creative Portfolios -->
+            <div class="template-categories">
+                <div class="category-title">
+                    <i class="fas fa-paint-brush"></i> Creative Portfolios
+                </div>
+                <div class="template-list">
+                    <!-- Video Editor Template -->
+                    <div class="template-item active" data-template="video" draggable="true">
+                        <div class="template-badge">Popular</div>
+                        <div class="drag-indicator">
+                            <i class="fas fa-arrows-alt"></i> Drag
+                        </div>
+                        <div class="template-thumbnail">
+                            <img src="https://images.unsplash.com/photo-1579389083078-4e7018379f7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Video Editor Template">
+                        </div>
+                        <div class="template-info">
+                            <h3>Video Editor Portfolio</h3>
+                            <p>Direct link to video editor portfolio template</p>
+                        </div>
+                        <button class="template-action-btn" data-template="video">
+                            <i class="fas fa-sliders-h"></i> Customize
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Professional Portfolios -->
+            <div class="template-categories">
+                <div class="category-title">
+                    <i class="fas fa-briefcase"></i> Professional Portfolios
+                </div>
+                <div class="template-list">
+                    <!-- Educator Template -->
+                    <div class="template-item" data-template="educator" draggable="true">
+                        <div class="drag-indicator">
+                            <i class="fas fa-arrows-alt"></i> Drag
+                        </div>
+                        <div class="template-thumbnail">
+                            <img src="https://images.unsplash.com/photo-1580894732444-8ecded7900cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Educator Template">
+                        </div>
+                        <div class="template-info">
+                            <h3>Educator Portfolio</h3>
+                            <p>Direct link to educator portfolio template</p>
+                        </div>
+                        <button class="template-action-btn" data-template="educator">
+                            <i class="fas fa-sliders-h"></i> Customize
+                        </button>
+                    </div>
+                    
+                    <!-- Professional Template -->
+                    <div class="template-item" data-template="professional" draggable="true">
+                        <div class="drag-indicator">
+                            <i class="fas fa-arrows-alt"></i> Drag
+                        </div>
+                        <div class="template-thumbnail">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Professional Template">
+                        </div>
+                        <div class="template-info">
+                            <h3>Professional Portfolio</h3>
+                            <p>Direct link to professional portfolio template</p>
+                        </div>
+                        <button class="template-action-btn" data-template="professional">
+                            <i class="fas fa-sliders-h"></i> Customize
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Area -->
+        <div class="preview-area">
+            <div class="preview-header">
+                <div class="preview-title">
+                    <i class="fas fa-eye"></i> Portfolio Workspace
+                </div>
+                <div class="preview-actions">
+                    <button class="option-btn secondary">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+            
+            <div class="template-preview-container" id="previewContainer">
+                <!-- Empty state when no template is selected -->
+                <div class="empty-workspace" id="emptyWorkspace">
+                    <div class="empty-workspace-icon">
+                        <i class="fas fa-file-import"></i>
+                    </div>
+                    <h3>Your Portfolio Workspace</h3>
+                    <p>Select a template from the sidebar or drag and drop one here to get started. Customize your portfolio with your own content, colors, and images.</p>
+                    
+                    <div class="drop-zone" id="dropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h4>Drag & Drop Template Here</h4>
+                        <p>Or click on a template in the sidebar to preview</p>
+                    </div>
+                </div>
+                
+                <!-- Template preview will be shown here when selected -->
+                <iframe id="templatePreview" class="template-preview" style="display: none;"></iframe>
+            </div>
+        </div>
+
+        <!-- Customization Panel -->
+        <div class="customization-panel" id="customizationPanel">
+            <div class="panel-header">
+                <h3><i class="fas fa-sliders-h"></i> Customization Panel</h3>
+                <button class="close-panel" id="closePanelBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="customization-options">
+                <div class="option-group">
+                    <label for="fontFamily">Font Family</label>
+                    <select id="fontFamily">
+                        <option value="'Poppins', sans-serif">Poppins (Default)</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                        <option value="'Lato', sans-serif">Lato</option>
+                        <option value="'Arial', sans-serif">Arial</option>
+                        <option value="'Georgia', serif">Georgia</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label for="fontSize">Font Size (px)</label>
+                    <input type="number" id="fontSize" min="12" max="24" value="16">
+                </div>
+
+                <div class="option-group">
+                    <label for="primaryColor">Primary Color</label>
+                    <input type="color" id="primaryColor" value="#4361ee">
+                </div>
+
+                <div class="option-group">
+                    <label for="secondaryColor">Secondary Color</label>
+                    <input type="color" id="secondaryColor" value="#3f37c9">
+                </div>
+
+                <div class="option-group">
+                    <label for="accentColor">Accent Color</label>
+                    <input type="color" id="accentColor" value="#f72585">
+                </div>
+
+                <div class="option-group">
+                    <label for="darkColor">Dark Color</label>
+                    <input type="color" id="darkColor" value="#1a1a2e">
+                </div>
+
+                <div class="option-group">
+                    <label for="lightColor">Light Color</label>
+                    <input type="color" id="lightColor" value="#f8f9fa">
+                </div>
+
+                <div class="option-group">
+                    <label for="textColor">Text Color</label>
+                    <input type="color" id="textColor" value="#2b2d42">
+                </div>
+
+                <div class="option-group">
+                    <label for="bgColor">Background Color</label>
+                    <input type="color" id="bgColor" value="#f5f7fa">
+                </div>
+
+                <!-- Content Editing Section -->
+                <div class="option-group full-width">
+                    <div class="section-title">
+                        <i class="fas fa-edit"></i> Content Editing
+                    </div>
+                    <div class="option-buttons">
+                        <button id="toggleEditMode" class="option-btn">
+                            <i class="fas fa-edit"></i> Toggle Edit Mode
+                        </button>
+                        <button id="saveContentBtn" class="option-btn secondary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <button id="resetContentBtn" class="option-btn danger">
+                            <i class="fas fa-undo"></i> Reset Content
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Image Replacement Section -->
+                <div class="option-group full-width">
+                    <div class="section-title">
+                        <i class="fas fa-image"></i> Image Customization
+                    </div>
+                    <div class="image-upload-container">
+                        <label for="imageElementSelect">Select Image to Customize:</label>
+                        <select id="imageElementSelect">
+                            <option value="">-- Select an image element --</option>
+                            <!-- Will be populated dynamically -->
+                        </select>
+                        
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop your image or click to browse</p>
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <!-- Image Customization Options -->
+                        <div class="image-options" id="imageOptions">
+                            <div class="image-option-row">
+                                <div class="image-option-group">
+                                    <label for="imageWidth">Width</label>
+                                    <input type="text" id="imageWidth" placeholder="e.g. 100px or 50%">
+                                </div>
+                                <div class="image-option-group">
+                                    <label for="imageHeight">Height</label>
+                                    <input type="text" id="imageHeight" placeholder="e.g. 200px or auto">
+                                </div>
+                            </div>
+                            
+                            <div class="image-option-row">
+                                <div class="image-option-group">
+                                    <label for="imageBorderRadius">Border Radius</label>
+                                    <input type="text" id="imageBorderRadius" placeholder="e.g. 5px or 50%">
+                                </div>
+                                <div class="image-option-group">
+                                    <label for="imageObjectFit">Object Fit</label>
+                                    <select id="imageObjectFit">
+                                        <option value="fill">Fill</option>
+                                        <option value="contain">Contain</option>
+                                        <option value="cover" selected>Cover</option>
+                                        <option value="none">None</option>
+                                        <option value="scale-down">Scale Down</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="image-option-row">
+                                <div class="image-option-group">
+                                    <label for="imageOpacity">Opacity (0-1)</label>
+                                    <input type="number" id="imageOpacity" min="0" max="1" step="0.1" value="1">
+                                </div>
+                                <div class="image-option-group">
+                                    <label for="imageFilter">Filter</label>
+                                    <select id="imageFilter">
+                                        <option value="none">None</option>
+                                        <option value="grayscale(100%)">Grayscale</option>
+                                        <option value="sepia(100%)">Sepia</option>
+                                        <option value="blur(2px)">Blur</option>
+                                        <option value="brightness(1.2)">Brightness</option>
+                                        <option value="contrast(1.2)">Contrast</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button id="applyImageStyles" class="option-btn">
+                                <i class="fas fa-check"></i> Apply Styles
+                            </button>
+                            <button id="resetImageStyles" class="option-btn secondary">
+                                <i class="fas fa-undo"></i> Reset Styles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Section -->
+                <div class="option-group full-width">
+                    <div class="section-title">
+                        <i class="fas fa-download"></i> Export Options
+                    </div>
+                    <div class="option-buttons">
+                        <button id="exportHtmlBtn" class="option-btn">
+                            <i class="fas fa-file-code"></i> Export HTML
+                        </button>
+                        <button id="exportZipBtn" class="option-btn secondary">
+                            <i class="fas fa-file-archive"></i> Export as ZIP
+                        </button>
+                        <button id="exportLiveBtn" class="option-btn">
+                            <i class="fas fa-globe"></i> Publish Online
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customize Button -->
+        <button class="customize-btn" id="customizeBtn" style="display: none;">
+            <i class="fas fa-sliders-h"></i>
+        </button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const templateSidebar = document.getElementById('templateSidebar');
+        const templateItems = document.querySelectorAll('.template-item');
+        const templatePreview = document.getElementById('templatePreview');
+        const previewContainer = document.getElementById('previewContainer');
+        const emptyWorkspace = document.getElementById('emptyWorkspace');
+        const dropZone = document.getElementById('dropZone');
+        const previewTitle = document.querySelector('.preview-title');
+        const customizeBtn = document.getElementById('customizeBtn');
+        const customizationPanel = document.getElementById('customizationPanel');
+        const closePanelBtn = document.getElementById('closePanelBtn');
+        const toggleEditBtn = document.getElementById('toggleEditMode');
+        const saveContentBtn = document.getElementById('saveContentBtn');
+        const resetContentBtn = document.getElementById('resetContentBtn');
+        const imageElementSelect = document.getElementById('imageElementSelect');
+        const imageUpload = document.getElementById('imageUpload');
+        const uploadArea = document.getElementById('uploadArea');
+        const exportHtmlBtn = document.getElementById('exportHtmlBtn');
+        const exportZipBtn = document.getElementById('exportZipBtn');
+        const exportLiveBtn = document.getElementById('exportLiveBtn');
+        const imageOptions = document.getElementById('imageOptions');
+        const applyImageStyles = document.getElementById('applyImageStyles');
+        const resetImageStyles = document.getElementById('resetImageStyles');
+        const templateActionBtns = document.querySelectorAll('.template-action-btn');
+        
+        // Template data
+        const templates = {
+            video: {
+                file: 'video.html',
+                name: 'Video Editor Portfolio',
+                type: 'iframe'
+            },
+            educator: {
+                file: 'teacher.html',
+                name: 'Educator Portfolio',
+                type: 'iframe'
+            },
+            professional: {
+                file: 'templates.html',
+                name: 'Professional Portfolio',
+                type: 'iframe'
+            }
+        };
+
+        // State variables
+        let editMode = false;
+        let originalContent = {};
+        let currentTemplate = null;
+        let draggedTemplate = null;
+        let selectedImageIndex = null;
+        let originalImageStyles = {};
+
+        // Initialize the app
+        function initApp() {
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize color pickers with current values
+            updateStyles();
+        }
+
+        // Set up all event listeners
+        function setupEventListeners() {
+            // Mobile menu toggle
+            mobileMenuBtn.addEventListener('click', toggleSidebar);
+
+            // Template selection
+            templateItems.forEach(item => {
+                item.addEventListener('click', () => selectTemplate(item));
+                
+                // Drag and drop events
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+
+            // Template action buttons (customize buttons on template items)
+            templateActionBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const templateName = btn.getAttribute('data-template');
+                    const templateItem = document.querySelector(`.template-item[data-template="${templateName}"]`);
+                    selectTemplate(templateItem);
+                    toggleCustomizationPanel();
+                });
+            });
+
+            // Drop zone events
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('drop', handleDrop);
+            dropZone.addEventListener('click', () => {
+                if (!currentTemplate && templateItems.length > 0) {
+                    selectTemplate(templateItems[0]);
+                }
+            });
+
+            // Customization panel toggle
+            customizeBtn.addEventListener('click', toggleCustomizationPanel);
+            closePanelBtn.addEventListener('click', toggleCustomizationPanel);
+
+            // Color customization
+            const colorInputs = [
+                'primaryColor', 'secondaryColor', 'accentColor', 
+                'darkColor', 'lightColor', 'textColor', 'bgColor'
+            ];
+
+            colorInputs.forEach(id => {
+                const input = document.getElementById(id);
+                input.addEventListener('input', updateStyles);
+            });
+
+            // Font customization
+            document.getElementById('fontFamily').addEventListener('change', updateStyles);
+            document.getElementById('fontSize').addEventListener('input', updateStyles);
+
+            // Content editing
+            toggleEditBtn.addEventListener('click', toggleEditMode);
+            saveContentBtn.addEventListener('click', saveContentChanges);
+            resetContentBtn.addEventListener('click', resetContent);
+
+            // Image replacement
+            uploadArea.addEventListener('click', () => imageUpload.click());
+            imageUpload.addEventListener('change', handleImageUpload);
+            imageElementSelect.addEventListener('change', updateImageSelection);
+
+            // Image styling
+            applyImageStyles.addEventListener('click', applyImageCustomization);
+            resetImageStyles.addEventListener('click', resetImageCustomization);
+
+            // Export functionality
+            exportHtmlBtn.addEventListener('click', exportAsHtml);
+            exportZipBtn.addEventListener('click', exportAsZip);
+            exportLiveBtn.addEventListener('click', publishOnline);
+        }
+
+        // Drag and drop handlers
+        function handleDragStart(e) {
+            draggedTemplate = this;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.getAttribute('data-template'));
+            e.dataTransfer.effectAllowed = 'copy';
+            
+            // Show the customize button immediately when dragging starts
+            customizeBtn.style.display = 'flex';
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            dropZone.classList.add('active');
+            e.dataTransfer.dropEffect = 'copy';
+        }
+
+        function handleDragLeave() {
+            dropZone.classList.remove('active');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            dropZone.classList.remove('active');
+            
+            const templateName = e.dataTransfer.getData('text/plain');
+            if (templates[templateName]) {
+                const templateItem = document.querySelector(`.template-item[data-template="${templateName}"]`);
+                selectTemplate(templateItem);
+                
+                // Show the customize button after drop
+                customizeBtn.style.display = 'flex';
+                showNotification(`"${templates[templateName].name}" template loaded! Click the customize button to edit.`, 'success');
+            }
+        }
+
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            templateSidebar.classList.toggle('active');
+        }
+
+        // Select a template
+        function selectTemplate(item) {
+            // Remove active class from all items
+            templateItems.forEach(i => i.classList.remove('active'));
+            
+            // Add active class to clicked item
+            item.classList.add('active');
+            
+            // Get the template name
+            const templateName = item.getAttribute('data-template');
+            currentTemplate = templateName;
+            
+            // Load the selected template
+            loadTemplate(templateName);
+            
+            // Update preview title
+            previewTitle.innerHTML = `<i class="fas fa-eye"></i> Live Preview: ${templates[templateName].name}`;
+            
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                templateSidebar.classList.remove('active');
+            }
+            
+            // Show the customize button
+            customizeBtn.style.display = 'flex';
+        }
+
+        // Load template into preview iframe or open link
+        function loadTemplate(templateName) {
+            if (!templates[templateName]) return;
+            
+            if (templates[templateName].type === 'link') {
+                // Open the HTML file directly in a new tab
+                window.open(templates[templateName].file, '_blank');
+            } else {
+                // Hide empty workspace and show preview
+                emptyWorkspace.style.display = 'none';
+                templatePreview.style.display = 'block';
+                
+                // Load the template
+                templatePreview.src = templates[templateName].file;
+                
+                // Reset edit mode
+                editMode = false;
+                toggleEditBtn.innerHTML = '<i class="fas fa-edit"></i> Toggle Edit Mode';
+                toggleEditBtn.style.backgroundColor = '';
+                
+                // When iframe loads, populate image elements
+                templatePreview.onload = function() {
+                    populateImageElements();
+                    saveOriginalContent();
+                };
+            }
+        }
+
+        // Populate image elements dropdown
+        function populateImageElements() {
+            const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+            const images = iframeDoc.querySelectorAll('img');
+            
+            imageElementSelect.innerHTML = '<option value="">-- Select an image element --</option>';
+            
+            images.forEach((img, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = img.alt || `Image ${index + 1}`;
+                imageElementSelect.appendChild(option);
+            });
+        }
+
+        // Save original content for reset functionality
+        function saveOriginalContent() {
+            const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+            const editableElements = iframeDoc.querySelectorAll('[contenteditable="true"]');
+            
+            originalContent = {};
+            
+            editableElements.forEach(el => {
+                const id = el.id || Math.random().toString(36).substr(2, 9);
+                originalContent[id] = el.innerHTML;
+            });
+        }
+
+        // Update styles based on customization options
+        function updateStyles() {
+            const root = document.documentElement;
+            
+            // Update colors
+            const colorInputs = [
+                'primaryColor', 'secondaryColor', 'accentColor', 
+                'darkColor', 'lightColor', 'textColor', 'bgColor'
+            ];
+
+            colorInputs.forEach(id => {
+                const value = document.getElementById(id).value;
+                const cssVar = id.replace(/([A-Z])/g, '-$1').toLowerCase();
+                root.style.setProperty(`--${cssVar}`, value);
+            });
+            
+            // Update font family
+            const fontFamily = document.getElementById('fontFamily').value;
+            root.style.setProperty('--font-main', fontFamily);
+            
+            // Update font size
+            const fontSize = document.getElementById('fontSize').value + 'px';
+            root.style.setProperty('--font-size', fontSize);
+        }
+
+        // Toggle content editable mode
+        function toggleEditMode() {
+            editMode = !editMode;
+            const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+            
+            if (editMode) {
+                // Enable editing
+                iframeDoc.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                    el.style.outline = '2px dashed var(--primary)';
+                    el.style.padding = '5px';
+                    el.style.borderRadius = '3px';
+                    el.style.backgroundColor = 'rgba(67, 97, 238, 0.05)';
+                });
+                toggleEditBtn.innerHTML = '<i class="fas fa-times"></i> Disable Edit Mode';
+                toggleEditBtn.style.backgroundColor = 'var(--accent)';
+            } else {
+                // Disable editing
+                iframeDoc.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                    el.style.outline = 'none';
+                    el.style.padding = '0';
+                    el.style.backgroundColor = 'transparent';
+                });
+                toggleEditBtn.innerHTML = '<i class="fas fa-edit"></i> Toggle Edit Mode';
+                toggleEditBtn.style.backgroundColor = '';
+            }
+        }
+
+        // Save content changes
+        function saveContentChanges() {
+            const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+            const editableElements = iframeDoc.querySelectorAll('[contenteditable="true"]');
+            
+            editableElements.forEach(el => {
+                const id = el.id || Math.random().toString(36).substr(2, 9);
+                originalContent[id] = el.innerHTML;
+            });
+            
+            showNotification('Content changes saved successfully!', 'success');
+        }
+
+        // Reset content to original
+        function resetContent() {
+            if (confirm('Are you sure you want to reset all content changes? This cannot be undone.')) {
+                const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+                const editableElements = iframeDoc.querySelectorAll('[contenteditable="true"]');
+                
+                editableElements.forEach(el => {
+                    const id = el.id || Math.random().toString(36).substr(2, 9);
+                    if (originalContent[id]) {
+                        el.innerHTML = originalContent[id];
+                    }
+                });
+                
+                showNotification('Content reset to original', 'info');
+            }
+        }
+
+        // Handle image upload
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const selectedIndex = imageElementSelect.value;
+            if (!selectedIndex) {
+                showNotification('Please select an image element first', 'warning');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+                const images = iframeDoc.querySelectorAll('img');
+                const selectedIndex = parseInt(imageElementSelect.value);
+                
+                if (images[selectedIndex]) {
+                    // Save original image source before replacing
+                    if (!originalImageStyles[selectedIndex]) {
+                        originalImageStyles[selectedIndex] = {
+                            src: images[selectedIndex].src,
+                            width: images[selectedIndex].style.width,
+                            height: images[selectedIndex].style.height,
+                            borderRadius: images[selectedIndex].style.borderRadius,
+                            objectFit: images[selectedIndex].style.objectFit,
+                            opacity: images[selectedIndex].style.opacity,
+                            filter: images[selectedIndex].style.filter
+                        };
+                    }
+                    
+                    images[selectedIndex].src = event.target.result;
+                    showNotification('Image replaced successfully!', 'success');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Update image selection
+        function updateImageSelection() {
+            const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+            const images = iframeDoc.querySelectorAll('img');
+            selectedImageIndex = parseInt(this.value);
+            
+            if (isNaN(selectedImageIndex)) {
+                imageOptions.classList.remove('active');
+                return;
+            }
+            
+            // Show image options panel
+            imageOptions.classList.add('active');
+            
+            // Highlight selected image in preview
+            images.forEach((img, index) => {
+                img.style.boxShadow = index === selectedImageIndex ? '0 0 0 3px var(--accent)' : 'none';
+            });
+            
+            // Get current styles of selected image
+            const selectedImage = images[selectedImageIndex];
+            
+            // Populate the form fields with current styles
+            document.getElementById('imageWidth').value = selectedImage.style.width || '';
+            document.getElementById('imageHeight').value = selectedImage.style.height || '';
+            document.getElementById('imageBorderRadius').value = selectedImage.style.borderRadius || '';
+            document.getElementById('imageObjectFit').value = selectedImage.style.objectFit || 'cover';
+            document.getElementById('imageOpacity').value = selectedImage.style.opacity || '1';
+            document.getElementById('imageFilter').value = selectedImage.style.filter || 'none';
+        }
+
+        // Apply image customization
+        function applyImageCustomization() {
+            if (selectedImageIndex === null) {
+                showNotification('Please select an image first', 'warning');
+                return;
+            }
+            
+            const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+            const images = iframeDoc.querySelectorAll('img');
+            const selectedImage = images[selectedImageIndex];
+            
+            // Apply styles from form fields
+            selectedImage.style.width = document.getElementById('imageWidth').value;
+            selectedImage.style.height = document.getElementById('imageHeight').value;
+            selectedImage.style.borderRadius = document.getElementById('imageBorderRadius').value;
+            selectedImage.style.objectFit = document.getElementById('imageObjectFit').value;
+            selectedImage.style.opacity = document.getElementById('imageOpacity').value;
+            selectedImage.style.filter = document.getElementById('imageFilter').value;
+            
+            showNotification('Image styles applied successfully!', 'success');
+        }
+
+        // Reset image customization
+        function resetImageCustomization() {
+            if (selectedImageIndex === null) {
+                showNotification('Please select an image first', 'warning');
+                return;
+            }
+            
+            if (!confirm('Reset this image to its original styles?')) {
+                return;
+            }
+            
+            const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+            const images = iframeDoc.querySelectorAll('img');
+            const selectedImage = images[selectedImageIndex];
+            
+            // Reset to original styles if they exist
+            if (originalImageStyles[selectedImageIndex]) {
+                selectedImage.src = originalImageStyles[selectedImageIndex].src;
+                selectedImage.style.width = originalImageStyles[selectedImageIndex].width;
+                selectedImage.style.height = originalImageStyles[selectedImageIndex].height;
+                selectedImage.style.borderRadius = originalImageStyles[selectedImageIndex].borderRadius;
+                selectedImage.style.objectFit = originalImageStyles[selectedImageIndex].objectFit;
+                selectedImage.style.opacity = originalImageStyles[selectedImageIndex].opacity;
+                selectedImage.style.filter = originalImageStyles[selectedImageIndex].filter;
+                
+                // Reset form fields
+                document.getElementById('imageWidth').value = '';
+                document.getElementById('imageHeight').value = '';
+                document.getElementById('imageBorderRadius').value = '';
+                document.getElementById('imageObjectFit').value = 'cover';
+                document.getElementById('imageOpacity').value = '1';
+                document.getElementById('imageFilter').value = 'none';
+                
+                showNotification('Image styles reset to original', 'info');
+            } else {
+                showNotification('No original styles saved for this image', 'warning');
+            }
+        }
+
+        // Toggle customization panel
+        function toggleCustomizationPanel() {
+            customizationPanel.classList.toggle('active');
+            
+            // Scroll to top when opening
+            if (customizationPanel.classList.contains('active')) {
+                customizationPanel.scrollTo(0, 0);
+            }
+        }
+
+        // Export as HTML
+        function exportAsHtml() {
+            if (!currentTemplate) {
+                showNotification('Please select a template first', 'warning');
+                return;
+            }
+            
+            const iframeDoc = templatePreview.contentDocument || templatePreview.contentWindow.document;
+            const htmlContent = `<!DOCTYPE html>\n${iframeDoc.documentElement.outerHTML}`;
+            
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentTemplate}-portfolio.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('HTML file exported successfully!', 'success');
+        }
+
+        // Export as ZIP (simulated)
+        function exportAsZip() {
+            if (!currentTemplate) {
+                showNotification('Please select a template first', 'warning');
+                return;
+            }
+            
+            showNotification('Preparing ZIP file with all assets...', 'info');
+            // In a real implementation, you would use JSZip to package all assets
+            setTimeout(() => {
+                showNotification('ZIP file ready for download!', 'success');
+            }, 2000);
+        }
+
+        // Publish online (simulated)
+        function publishOnline() {
+            if (!currentTemplate) {
+                showNotification('Please select a template first', 'warning');
+                return;
+            }
+            
+            showNotification('Connecting to hosting service...', 'info');
+            setTimeout(() => {
+                showNotification('Your portfolio is now live!', 'success');
+            }, 1500);
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login / Signup - Portfolio Maker</title>
+  <link rel="stylesheet" href="{{url_for('static',filename='css/auth.css')}}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body class="dark-theme">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo"><a href="{{ url_for('home') }}">Portfolio Maker</a></div>
+    <ul>
+      <li><a href="{{ url_for('home') }}">Home</a></li>
+      <li><a href="{{ url_for('auth') }}" class="active">Login/Signup</a></li>
+    </ul>
+  </nav>
+
+  <!-- Login/Signup Container -->
+  <div class="auth-page">
+    <div class="auth-panel" id="loginPanel">
+      <h2>Login</h2>
+      <p>Please enter your login details to continue.</p>
+      <input type="email" id="loginEmail" placeholder="Email Address" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <div class="login-options">
+        <label><input type="checkbox" /> Keep me signed in</label>
+        <a href="#">Forgot password?</a>
+      </div>
+      <button class="btn primary-btn" id="loginBtn">Log In</button>
+      <p class="switch-text">
+        Don't have an account?
+        <a href="#" onclick="showSignup()">Sign Up</a>
+      </p>
+    </div>
+
+    <div class="auth-panel hidden" id="signupPanel">
+      <h2>Sign Up</h2>
+      <p>Create your account in seconds.</p>
+      <input type="text" id="signupUsername" placeholder="Full Name" />
+      <input type="email" id="signupEmail" placeholder="Email Address" />
+      <input type="password" id="signupPassword" placeholder="Password" />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" />
+      <label class="terms-label">
+        <input type="checkbox" /> I agree to the <a href="#">Terms &amp; Conditions</a>
+      </label>
+      <button class="btn primary-btn" id="signupBtn">Create Account</button>
+      <p class="switch-text">
+        Already have an account?
+        <a href="#" onclick="showLogin()">Log In</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    function showLogin() {
+      document.getElementById('loginPanel').classList.remove('hidden');
+      document.getElementById('signupPanel').classList.add('hidden');
+    }
+    function showSignup() {
+      document.getElementById('signupPanel').classList.remove('hidden');
+      document.getElementById('loginPanel').classList.add('hidden');
+    }
+
+    // Login request
+    document.getElementById('loginBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('token', data.access_token);
+        alert('Login successful! Redirecting...');
+        window.location.href = '/';
+      } else {
+        alert(data.message);
+      }
+    });
+
+    // Signup request
+    document.getElementById('signupBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('signupUsername').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+      }
+
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Signup successful! Please log in.');
+        showLogin();
+      } else {
+        alert(data.message);
+      }
+    });
+  </script>
+</body>
+</html>

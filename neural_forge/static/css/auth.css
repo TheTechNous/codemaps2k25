@@ -1,0 +1,472 @@
+/* ---------------------------------------------------------------------
+   RESET & BODY
+--------------------------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body.light-theme {
+    background: #f9f7f7;
+    color: #333;
+    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+  
+  /* ---------------------------------------------------------------------
+     NAVBAR
+  --------------------------------------------------------------------- */
+  .navbar {
+    background-color: #fff;
+    border-bottom: 2px solid #657382;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+  .logo a {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #595f65;
+    text-decoration: none;
+  }
+  .navbar ul {
+    list-style: none;
+    display: flex;
+  }
+  .navbar li {
+    margin-left: 20px;
+  }
+  .navbar a {
+    text-decoration: none;
+    color: #333;
+    padding: 15px 0;
+    display: block;
+    transition: color 0.3s;
+  }
+  .navbar a:hover,
+  .navbar a.active {
+    color: #007bff;
+  }
+  
+  /* ---------------------------------------------------------------------
+     HERO SECTION
+  --------------------------------------------------------------------- */
+  .hero-section {
+    position: relative;
+    background: url('images/giphy.gif') center/cover no-repeat;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-section .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,123,255,0.5);
+  }
+  .hero-section .overlay.dark {
+    background: rgba(0,123,255,0.7);
+  }
+  .hero-content {
+    position: relative;
+    text-align: center;
+    color: #fff;
+    padding: 20px;
+  }
+  .hero-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  .hero-content p {
+    font-size: 1.2rem;
+  }
+  
+  /* ---------------------------------------------------------------------
+     CONTAINER & BUTTONS
+  --------------------------------------------------------------------- */
+  .container {
+    max-width: 1200px;
+    margin: 80px auto 20px;
+    padding: 20px;
+  }
+  .btn {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+    margin: 10px 0;
+  }
+  .btn:hover {
+    background-color: #0056b3;
+  }
+  .primary-btn {
+    background-color: #007bff;
+  }
+  .primary-btn:hover {
+    background-color: #0056b3;
+  }
+  .danger-btn {
+    background-color: #dc3545;
+  }
+  .danger-btn:hover {
+    background-color: #c82333;
+  }
+  
+  /* ---------------------------------------------------------------------
+     FOOTER
+  --------------------------------------------------------------------- */
+  .footer {
+    background: #007bff;
+    color: #fff;
+    padding: 15px 20px;
+    text-align: center;
+  }
+  .footer-links a {
+    margin-right: 15px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  .footer-links a:hover {
+    color: #cce5ff;
+  }
+  .social-icons a img {
+    width: 24px;
+    margin-left: 10px;
+  }
+  
+  /* ---------------------------------------------------------------------
+     HOME PAGE STYLES
+  --------------------------------------------------------------------- */
+  .home-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .user-details,
+  .upload-resume {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    flex: 1;
+    min-width: 300px;
+  }
+  .user-details h2,
+  .upload-resume h2 {
+    margin-bottom: 15px;
+  }
+  .user-details label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: 600;
+  }
+  .user-details input,
+  .user-details select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  #yearContainer.hidden {
+    display: none;
+  }
+  
+  /* ---------------------------------------------------------------------
+     LOGIN/SIGNUP PAGE STYLES
+  --------------------------------------------------------------------- */
+  .auth-page,
+  .login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    padding: 20px;
+  }
+  .auth-panel,
+  .login-panel,
+  .signup-panel {
+    background: #fff;
+    width: 350px;
+    max-width: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 0.5s;
+  }
+  .auth-panel h2,
+  .login-panel h2,
+  .signup-panel h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  .auth-panel p,
+  .login-panel p,
+  .signup-panel p {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    color: #555;
+  }
+  .auth-panel input,
+  .login-panel input,
+  .signup-panel input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95rem;
+  }
+  .login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+  }
+  .terms-label {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 15px;
+  }
+  .switch-text {
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 10px;
+  }
+  .social-separator {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 0.9rem;
+    color: #777;
+  }
+  .social-login {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+  .social-login img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  .social-login img:hover {
+    transform: scale(1.05);
+  }
+  .hidden {
+    display: none;
+  }
+  
+  /* ---------------------------------------------------------------------
+     UPDATED HOME PAGE (home-updated.html) STYLES
+  --------------------------------------------------------------------- */
+  .upload-resume {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .performance {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .performance-meter {
+    background: #f0f0f0;
+    height: 150px;
+    width: 150px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  .skill-suggestions ul {
+    list-style: disc;
+    margin-left: 20px;
+    text-align: left;
+  }
+  
+  /* ---------------------------------------------------------------------
+     DASHBOARD PAGE STYLES
+  --------------------------------------------------------------------- */
+  .dashboard-container h2 {
+    margin-bottom: 20px;
+  }
+  .profile-section {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .profile-pic {
+    width: 80px;
+    height: 80px;
+    margin-right: 20px;
+    border-radius: 50%;
+    background: #eee;
+    object-fit: cover;
+  }
+  .performance-graph,
+  .resume-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+  .graph-placeholder {
+    background: #f0f0f0;
+    height: 200px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* ---------------------------------------------------------------------
+     CHATBOT STYLES
+  --------------------------------------------------------------------- */
+  .chatbot-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px; /* Smaller icon */
+    height: 50px;
+    cursor: pointer;
+    z-index: 10000;
+  }
+  .chatbot-icon img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+  .chatbot-window {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 300px;
+    height: 350px;
+    background: #fff;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    z-index: 11000;
+    display: flex;
+    flex-direction: column;
+  }
+  .chatbot-header {
+    background: #007bff;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+  .chatbot-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .close-chatbot {
+    cursor: pointer;
+    font-size: 1.4rem;
+  }
+  .chatbot-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+  }
+  .bot-message,
+  .user-message {
+    margin-bottom: 10px;
+  }
+  .chatbot-input {
+    display: flex;
+    border-top: 1px solid #ccc;
+  }
+  .chatbot-input input {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    outline: none;
+  }
+  #chatbotSendBtn {
+    border: none;
+    background: #007bff;
+    color: #fff;
+    padding: 10px 15px;
+    cursor: pointer;
+  }
+  
+  /* ---------------------------------------------------------------------
+     INFO SECTIONS (How It Works / About)
+  --------------------------------------------------------------------- */
+  .info-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  }
+  .info-section h1 {
+    margin-bottom: 20px;
+  }
+  .info-section ol {
+    margin-left: 20px;
+    margin-bottom: 20px;
+  }
+  .info-section h2 {
+    margin-top: 20px;
+  }
+  
+  /* ---------------------------------------------------------------------
+     RESPONSIVE DESIGN
+  --------------------------------------------------------------------- */
+  @media (max-width: 768px) {
+    .navbar ul {
+      flex-direction: column;
+      text-align: center;
+    }
+    .hero-content h1 {
+      font-size: 2rem;
+    }
+    .hero-content p {
+      font-size: 1rem;
+    }
+    .container {
+      padding: 10px;
+    }
+    .auth-page {
+      flex-direction: column;
+    }
+    .auth-panel,
+    .login-panel,
+    .signup-panel {
+      width: 100%;
+      max-width: 400px;
+      margin: 10px auto;
+    }
+  }

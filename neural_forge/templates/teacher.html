@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educator Portfolio | Your Name</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --text: #34495e;
+            --bg: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background-color: var(--dark);
+            padding: 1rem 5%;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--secondary);
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 8rem 5% 5rem;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero h2 {
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+            color: var(--secondary);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        /* Section Styles */
+        .section {
+            padding: 6rem 5%;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--dark);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            bottom: -10px;
+            left: 25%;
+            border-radius: 2px;
+        }
+        
+        /* About Section */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .about-img {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .about-img img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .about-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        
+        .about-text p {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Teaching Philosophy */
+        .philosophy {
+            background-color: var(--light);
+        }
+        
+        .philosophy-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .philosophy-content p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+        
+        /* Experience Section */
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background-color: var(--primary);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+        
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        
+        .timeline-item:nth-child(odd) {
+            left: 0;
+        }
+        
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+        
+        .timeline-content {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .timeline-content h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .timeline-date {
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .timeline-item:nth-child(odd)::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: white;
+            border: 4px solid var(--primary);
+            top: 30px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .timeline-item:nth-child(even)::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: -10px;
+            background-color: white;
+            border: 4px solid var(--primary);
+            top: 30px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        /* Teaching Materials */
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .material-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .material-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .material-img {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .material-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .material-card:hover .material-img img {
+            transform: scale(1.1);
+        }
+        
+        .material-info {
+            padding: 1.5rem;
+        }
+        
+        .material-info h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .material-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .material-tag {
+            background: #e0f7fa;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+        
+        /* Testimonials */
+        .testimonials {
+            background-color: var(--light);
+        }
+        
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .testimonial-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 4rem;
+            color: rgba(0,0,0,0.1);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+        
+        .testimonial-text {
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+        
+        .testimonial-author {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        /* Contact Section */
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .contact-text h3 {
+            color: var(--dark);
+            margin-bottom: 0.3rem;
+        }
+        
+        .contact-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .submit-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+        }
+        
+        .social-links a:hover {
+            transform: translateY(-5px);
+            color: var(--secondary);
+        }
+        
+        .copyright {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero h2 {
+                font-size: 1.5rem;
+            }
+            
+            .timeline::before {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+            
+            .timeline-item:nth-child(odd)::after,
+            .timeline-item:nth-child(even)::after {
+                left: 21px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero {
+                padding: 6rem 5% 3rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .section {
+                padding: 4rem 5%;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="#" class="logo" contenteditable="true">EDUCATOR PORTFOLIO</a>
+        <div class="nav-links">
+            <a href="#about">About</a>
+            <a href="#philosophy">Philosophy</a>
+            <a href="#experience">Experience</a>
+            <a href="#materials">Materials</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 contenteditable="true">Your Name</h1>
+            <h2 contenteditable="true">Dedicated Educator & Curriculum Specialist</h2>
+            <p contenteditable="true">Passionate about creating engaging learning experiences and fostering student success through innovative teaching methods.</p>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="section-title">
+            <h2>About Me</h2>
+        </div>
+        <div class="about-content">
+            <div class="about-img">
+                <img src="https://images.unsplash.com/photo-1580894732444-8ecded7900cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Teacher in classroom" contenteditable="true">
+            </div>
+            <div class="about-text">
+                <h3 contenteditable="true">Professional Educator</h3>
+                <p contenteditable="true">With over 10 years of experience in education, I specialize in creating dynamic learning environments that cater to diverse student needs. My approach combines traditional teaching methods with innovative educational technologies to maximize student engagement and achievement.</p>
+                <p contenteditable="true">I hold a Master's degree in Education and multiple teaching certifications. Throughout my career, I've taught at various grade levels and developed curriculum materials that have been adopted district-wide.</p>
+                <p contenteditable="true">When I'm not teaching, I enjoy attending professional development workshops, reading educational research, and mentoring new teachers.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teaching Philosophy -->
+    <section id="philosophy" class="section philosophy">
+        <div class="section-title">
+            <h2>Teaching Philosophy</h2>
+        </div>
+        <div class="philosophy-content">
+            <p contenteditable="true">I believe every student has unique strengths and learning styles. My role as an educator is to identify these strengths and create pathways for success that build confidence and foster lifelong learning.</p>
+            <p contenteditable="true">Learning should be an active, engaging process that connects classroom concepts to real-world applications. I strive to create lessons that are relevant, challenging, and accessible to all students.</p>
+            <p contenteditable="true">A positive classroom environment built on mutual respect and high expectations is essential for student growth. I work to create a space where students feel valued, supported, and empowered to take risks in their learning.</p>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="section">
+        <div class="section-title">
+            <h2>Professional Experience</h2>
+        </div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3 contenteditable="true">Senior Teacher</h3>
+                    <span class="timeline-date" contenteditable="true">2018 - Present</span>
+                    <p contenteditable="true">Lincoln High School</p>
+                    <ul contenteditable="true">
+                        <li>Lead teacher for 10th grade English</li>
+                        <li>Developed school-wide literacy program</li>
+                        <li>Mentor for new teachers</li>
+                        <li>Curriculum committee chair</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3 contenteditable="true">Middle School Teacher</h3>
+                    <span class="timeline-date" contenteditable="true">2013 - 2018</span>
+                    <p contenteditable="true">Jefferson Middle School</p>
+                    <ul contenteditable="true">
+                        <li>Taught 7th and 8th grade Language Arts</li>
+                        <li>Implemented technology integration program</li>
+                        <li>Led professional development workshops</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3 contenteditable="true">Elementary Teacher</h3>
+                    <span class="timeline-date" contenteditable="true">2009 - 2013</span>
+                    <p contenteditable="true">Maplewood Elementary</p>
+                    <ul contenteditable="true">
+                        <li>Taught 4th grade all subjects</li>
+                        <li>Developed STEM enrichment program</li>
+                        <li>Parent engagement coordinator</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teaching Materials Section -->
+    <section id="materials" class="section">
+        <div class="section-title">
+            <h2>Teaching Materials</h2>
+        </div>
+        <div class="materials-grid">
+            <div class="material-card">
+                <div class="material-img">
+                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Lesson Plan">
+                </div>
+                <div class="material-info">
+                    <h3 contenteditable="true">Literacy Unit Plan</h3>
+                    <p contenteditable="true">Comprehensive 4-week unit focusing on critical reading and analytical writing skills</p>
+                    <div class="material-tags">
+                        <span contenteditable="true">English</span>
+                        <span contenteditable="true">Grades 9-10</span>
+                        <span contenteditable="true">Common Core</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="material-card">
+                <div class="material-img">
+                    <img src="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Classroom Activity">
+                </div>
+                <div class="material-info">
+                    <h3 contenteditable="true">STEM Project Kit</h3>
+                    <p contenteditable="true">Hands-on engineering challenge using everyday materials</p>
+                    <div class="material-tags">
+                        <span contenteditable="true">Science</span>
+                        <span contenteditable="true">Grades 4-6</span>
+                        <span contenteditable="true">NGSS</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="material-card">
+                <div class="material-img">
+                    <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Professional Development">
+                </div>
+                <div class="material-info">
+                    <h3 contenteditable="true">Differentiation Guide</h3>
+                    <p contenteditable="true">Strategies for meeting diverse learning needs in mixed-ability classrooms</p>
+                    <div class="material-tags">
+                        <span contenteditable="true">PD Resource</span>
+                        <span contenteditable="true">All Grades</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="section testimonials">
+        <div class="section-title">
+            <h2>Testimonials</h2>
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-text" contenteditable="true">
+                    Ms. Johnson's innovative teaching methods transformed our English department. Her ability to connect with students and create engaging lessons is unmatched.
+                </div>
+                <div class="testimonial-author" contenteditable="true">- Principal Sarah Williams</div>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="testimonial-text" contenteditable="true">
+                    My child struggled with reading until being in Mr. Smith's class. His patience and creative approaches made all the difference in her confidence and skills.
+                </div>
+                <div class="testimonial-author" contenteditable="true">- Parent David Chen</div>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="testimonial-text" contenteditable="true">
+                    As a new teacher, having Mrs. Rodriguez as my mentor was invaluable. Her guidance and resources helped me develop my teaching practice more quickly than I could have imagined.
+                </div>
+                <div class="testimonial-author" contenteditable="true">- Colleague Jamal Brown</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="section-title">
+            <h2>Contact Me</h2>
+        </div>
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h3 contenteditable="true">Email</h3>
+                        <p contenteditable="true">teacher@example.com</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h3 contenteditable="true">Phone</h3>
+                        <p contenteditable="true">(123) 456-7890</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h3 contenteditable="true">Location</h3>
+                        <p contenteditable="true">Anytown, USA</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                    <div class="contact-text">
+                        <h3 contenteditable="true">Social Media</h3>
+                        <p contenteditable="true">LinkedIn: linkedin.com/in/teacher</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-form">
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" class="form-control" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Subject">
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" placeholder="Your Message" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#about">About</a>
+                <a href="#philosophy">Philosophy</a>
+                <a href="#experience">Experience</a>
+                <a href="#materials">Materials</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+            <div class="copyright" contenteditable="true">© 2023 Educator Portfolio. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Simple animation for timeline items
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        
+        function checkTimelineAnimation() {
+            const triggerBottom = window.innerHeight / 5 * 4;
+            
+            timelineItems.forEach(item => {
+                const itemTop = item.getBoundingClientRect().top;
+                
+                if(itemTop < triggerBottom) {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }
+            });
+        }
+        
+        // Set initial state
+        timelineItems.forEach(item => {
+            item.style.opacity = '0';
+            if(item.classList.contains('timeline-item:nth-child(odd)')) {
+                item.style.transform = 'translateX(-50px)';
+            } else {
+                item.style.transform = 'translateX(50px)';
+            }
+            item.style.transition = 'all 0.5s ease';
+        });
+        
+        // Check on scroll
+        window.addEventListener('scroll', checkTimelineAnimation);
+        
+        // Initial check
+        checkTimelineAnimation();
+    </script>
+</body>
+</html>
