@@ -38,6 +38,13 @@ jobs:
       - name: Download JPlag
         run: |
           curl -L -o jplag.jar https://github.com/jplag/JPlag/releases/download/v3.0.0/jplag-3.0.0-jar-with-dependencies.jar
+          # Verify the download succeeded
+          if [ ! -f jplag.jar ]; then
+            echo "Failed to download JPlag jar file"
+            exit 1
+          fi
+          echo "Successfully downloaded JPlag jar file"
+          ls -la jplag.jar
 
       - name: Detect solution folders
         id: detect-folders
@@ -246,74 +253,102 @@ jobs:
               # Method 1: Use JPlag if we have multiple solution folders
               if len(solution_folders) > 1:
                   try:
-                      # Run JPlag with correct parameters (no % sign in threshold)
+                      # Run JPlag with correct parameters
                       cmd = [
                           "java", "-jar", "jplag.jar",
                           "-l", jplag_lang,
                           "-r", str(output_dir),
-                          "-m", "0",  # Minimum match length as integer, not percentage
-                          "."  # Search in current directory
+                          "-m", "0",
+                          "-p", "files",  # Parse files mode
                       ]
                       
-                      # Add language-specific exclude patterns for other languages
-                      for exclude_lang in language_configs:
-                          if exclude_lang["name"] != lang_name:
-                              for ext in exclude_lang["extensions"]:
-                                  cmd.extend(["-x", f"**/*{ext}"])
+                      # Create separate directories for each language to avoid conflicts
+                      lang_dir = Path("temp_jplag_files") / lang_name
+                      if lang_dir.exists():
+                          shutil.rmtree(lang_dir)
+                      lang_dir.mkdir(parents=True, exist_ok=True)
                       
-                      # Exclude .git and .github directories
-                      cmd.extend(["-x", ".git/**", "-x", ".github/**"])
+                      # Copy only relevant files to the language directory
+                      for file in language_files:
+                          try:
+                              # Create destination folder maintaining relative structure
+                              rel_path = file.relative_to(Path('.'))
+                              team_folder = get_main_folder_name(file)
+                              dest_file = lang_dir / team_folder / rel_path.name
+                              dest_file.parent.mkdir(parents=True, exist_ok=True)
+                              shutil.copy2(file, dest_file)
+                          except Exception as e:
+                              print(f"{Fore.RED}Error copying file {file}: {e}{Style.RESET_ALL}")
+                              continue
                       
-                      print(f"Running JPlag: {' '.join(cmd)}")
+                      # Add language directory to command
+                      cmd.append(str(lang_dir))
+                      
+                      # Print the exact command that will be run
+                      cmd_str = ' '.join(cmd)
+                      print(f"{Fore.CYAN}Checking for plagiarism in {file_count} {lang_name} files...{Style.RESET_ALL}")
+                      print(f"Running JPlag: {cmd_str}")
+                      
+                      # Run JPlag with verbose output
                       process = subprocess.run(cmd, capture_output=True, text=True)
+                      
+                      # Always print output for debugging
+                      print(f"JPlag stdout: {process.stdout}")
+                      print(f"JPlag stderr: {process.stderr}")
                       
                       if process.returncode != 0:
                           print(f"{Fore.RED}Error running JPlag for {lang_name}:{Style.RESET_ALL}")
-                          print(process.stderr)
+                          print(f"Exit code: {process.returncode}")
+                          # Fall back to custom similarity check
+                          print(f"{Fore.YELLOW}Falling back to custom similarity check for {lang_name}{Style.RESET_ALL}")
                       else:
                           print(f"{Fore.GREEN}JPlag completed for {lang_name}{Style.RESET_ALL}")
                           
-                          # Parse the results
-                          index_file = output_dir / "index.html"
-                          if index_file.exists():
-                              # Parse the HTML report
-                              with open(index_file, "r", encoding="utf-8") as f:
-                                  soup = BeautifulSoup(f.read(), 'html.parser')
+                          # Parse the results - look in the specific language output directory
+                          result_dirs = list(output_dir.glob("*"))
+                          if result_dirs:
+                              result_dir = result_dirs[0]  # Use first result directory
+                              index_file = result_dir / "index.html"
                               
-                              # Extract matches from the table
-                              table = soup.find('table')
-                              if table:
-                                  rows = table.find_all('tr')[1:]  # Skip header row
+                              if index_file.exists():
+                                  # Parse the HTML report
+                                  with open(index_file, "r", encoding="utf-8") as f:
+                                      soup = BeautifulSoup(f.read(), 'html.parser')
                                   
-                                  for row in rows:
-                                      cells = row.find_all('td')
-                                      if len(cells) >= 3:
-                                          similarity_cell = cells[0]
-                                          similarity_text = similarity_cell.get_text(strip=True)
-                                          similarity_value = float(similarity_text.replace('%', ''))
-                                          
-                                          # Get team names from the comparison (only main folder names)
-                                          team_links = cells[1:3]
-                                          team1 = get_main_folder_name(team_links[0].get_text(strip=True))
-                                          team2 = get_main_folder_name(team_links[1].get_text(strip=True))
-                                          
-                                          # Add to results only if teams are different
-                                          if team1 != team2:
-                                              # Add to team plagiarism scores
-                                              team_plagiarism[team1].append(similarity_value)
-                                              team_plagiarism[team2].append(similarity_value)
+                                  # Extract matches from the table
+                                  table = soup.find('table')
+                                  if table:
+                                      rows = table.find_all('tr')[1:]  # Skip header row
+                                      
+                                      for row in rows:
+                                          cells = row.find_all('td')
+                                          if len(cells) >= 3:
+                                              similarity_cell = cells[0]
+                                              similarity_text = similarity_cell.get_text(strip=True)
+                                              similarity_value = float(similarity_text.replace('%', ''))
                                               
-                                              # Add to results
-                                              results.append({
-                                                  'language': lang_name,
-                                                  'team1': team1,
-                                                  'team2': team2,
-                                                  'similarity': f"{similarity_value}%",
-                                                  'match_url': f"{lang_name}/jplag_results.html",
-                                                  'tool': 'JPlag'
-                                              })
-                              else:
-                                  print(f"{Fore.YELLOW}No JPlag results found for {lang_name}.{Style.RESET_ALL}")
+                                              # Get team names from the comparison (only main folder names)
+                                              team_links = cells[1:3]
+                                              team1 = get_main_folder_name(team_links[0].get_text(strip=True))
+                                              team2 = get_main_folder_name(team_links[1].get_text(strip=True))
+                                              
+                                              # Add to results only if teams are different
+                                              if team1 != team2:
+                                                  # Add to team plagiarism scores
+                                                  team_plagiarism[team1].append(similarity_value)
+                                                  team_plagiarism[team2].append(similarity_value)
+                                                  
+                                                  # Add to results
+                                                  results.append({
+                                                      'language': lang_name,
+                                                      'team1': team1,
+                                                      'team2': team2,
+                                                      'similarity': f"{similarity_value}%",
+                                                      'match_url': f"{lang_name}/jplag_results.html",
+                                                      'tool': 'JPlag'
+                                                  })
+                                  else:
+                                      print(f"{Fore.YELLOW}No JPlag results found for {lang_name}.{Style.RESET_ALL}")
                   except Exception as e:
                       print(f"{Fore.RED}Error in JPlag processing for {lang_name}: {e}{Style.RESET_ALL}")
               
