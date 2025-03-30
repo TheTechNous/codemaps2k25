@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us | Nest</title>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0041b3;
+      padding: 10px 20px;
+      animation: slideIn 1s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .logo {
+      font-size: 24px;
+      color: white;
+      font-weight: bold;
+      animation: zoomIn 1s ease-out;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+    }
+
+    .nav-links li {
+      margin: 0 15px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      transition: background-color 0.3s;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      padding: 5px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .search-button {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    .search-button:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+      margin-left: 15px;
+    }
+
+    .auth-button {
+      padding: 6px 12px;
+      background-color: #ffffff;
+      color: #0041b3;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    .auth-button:hover {
+      background-color: #e0e0e0;
+    }
+
+    .about {
+      text-align: center;
+      padding: 60px 40px;
+      max-width: 1000px;
+      margin: auto;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .about h2 {
+      color: #0041b3;
+      margin-bottom: 20px;
+      font-size: 36px;
+    }
+
+    .about p {
+      font-size: 18px;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .testimonial {
+      background: #e8f0fe;
+      border-left: 6px solid #0041b3;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 8px;
+      max-width: 800px;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .testimonial p {
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #444;
+    }
+
+    .testimonial span {
+      font-weight: bold;
+      color: #0041b3;
+    }
+
+    footer {
+      background-color: #002366;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 14px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">Nest</div>
+    <ul class="nav-links">
+      <li><a href="main.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="rooms.html">Rooms</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="search-container">
+      <input type="text" placeholder="Search..." class="search-input">
+      <button class="search-button">🔍</button>
+      <div class="auth-buttons">
+        <button class="auth-button" onclick="window.location.href='login.html'">Login</button>
+        <button class="auth-button" onclick="window.location.href='signup.html'">Sign Up</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- About Section -->
+  <section class="about">
+    <h2>About Nest</h2>
+    <p>
+      Nest is a trusted platform designed to make finding the perfect rental room effortless. Whether you're a student, a working professional, or someone looking for a comfortable and verified living space, we've got you covered.
+    </p>
+    <p>
+      Our mission is to provide a seamless and secure rental experience by connecting tenants with trusted landlords and roommates. We ensure real-time availability, verified listings, and easy communication between users, making the room rental process smooth and hassle-free.
+    </p>
+    <p>
+      At Nest, we pride ourselves on offering a wide variety of rental options that suit different needs and budgets. From cozy studio apartments to shared living spaces, we have something for everyone. Our platform is designed with transparency and security in mind, ensuring that every listing is verified for authenticity.
+    </p>
+    <p>
+      Our dedicated customer support team is always available to assist you in finding the right space. We also provide tools that allow landlords to efficiently manage their listings and connect with potential tenants.
+    </p>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <h3 style="text-align:center; font-size: 28px; color: #0041b3; margin-bottom: 30px;">What Our Users Say</h3>
+    <div class="testimonial">
+      <p>"Nest helped me find the perfect room within minutes! The listings were accurate and the process was smooth."</p>
+      <span>- Priya, Student</span>
+    </div>
+    <div class="testimonial">
+      <p>"I found a great roommate through Nest. It saved me so much time and effort."</p>
+      <span>- Arjun, Working Professional</span>
+    </div>
+    <div class="testimonial">
+      <p>"The best room rental platform I’ve used so far. Highly recommended!"</p>
+      <span>- Meena, Freelancer</span>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 Nest. All rights reserved.
+  </footer>
+</body>
+</html>

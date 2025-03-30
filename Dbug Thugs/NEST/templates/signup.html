@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up | Room Rental</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: "Segoe UI", sans-serif;
+      background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c') no-repeat center center/cover;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .signup-box {
+      background: linear-gradient(to right, #005ce6, #0041b3);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      width: 420px;
+      color: white;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    label {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: white;
+      border: none;
+      border-radius: 8px;
+      color: #0041b3;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .message {
+      margin-top: 10px;
+      text-align: center;
+      color: lightgreen;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+    }
+
+    #resendLink {
+      display: block;
+      text-align: right;
+      margin-top: -10px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      color: lightblue;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="signup-box">
+      <h2>Create Your Account</h2>
+      <form id="signupForm">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="John Doe" required />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Create a password" required />
+
+        <div id="otpSection" style="display: none;">
+          <label for="otp">Enter OTP</label>
+          <input type="text" id="otp" name="otp" placeholder="Enter OTP" required />
+          <a id="resendLink">Resend OTP</a>
+        </div>
+
+        <button type="button" id="actionBtn">Send OTP</button>
+
+        <div class="login-link">
+          Already have an account? <a href="/login"> Login </a>
+          <!-- <a href="login.html">Login</a> -->
+        </div>
+        <div class="message" id="message"></div>
+        <div class="message error" id="error"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const actionBtn = document.getElementById('actionBtn');
+const otpSection = document.getElementById('otpSection');
+const messageDiv = document.getElementById('message');
+const errorDiv = document.getElementById('error');
+const resendLink = document.getElementById('resendLink');
+
+let state = 'send'; // 'send', 'verify', 'signup'
+
+actionBtn.addEventListener('click', async () => {
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  if (state === 'send') {
+    if (!email) {
+      alert('Please enter your email first!');
+      return;
+    }
+
+    try {
+      const res = await fetch('/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        messageDiv.textContent = data.message;
+        errorDiv.textContent = '';
+        otpSection.style.display = 'block';
+        actionBtn.textContent = 'Verify OTP';
+        state = 'verify';
+      } else {
+        errorDiv.textContent = data.error;
+        messageDiv.textContent = '';
+      }
+    } catch (err) {
+      errorDiv.textContent = 'Error sending OTP.';
+      messageDiv.textContent = '';
+    }
+
+  } else if (state === 'verify') {
+    const otp = document.getElementById('otp').value;
+    if (!otp) {
+      alert('Enter the OTP.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        messageDiv.textContent = data.message;
+        errorDiv.textContent = '';
+        document.getElementById('otp').disabled = true;
+        document.getElementById('email').disabled = true;
+
+        actionBtn.textContent = 'Sign Up';
+        state = 'signup';
+      } else {
+        errorDiv.textContent = data.error;
+        messageDiv.textContent = '';
+      }
+    } catch (err) {
+      errorDiv.textContent = 'OTP verification failed.';
+      messageDiv.textContent = '';
+    }
+
+  } else if (state === 'signup') {
+    try {
+      const res = await fetch('/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        messageDiv.textContent = data.message;
+        errorDiv.textContent = '';
+        setTimeout(() => {
+          if (data.redirect) {
+            window.location.href = data.redirect;  // Redirect to the URL provided in the response
+          }
+        }, 1500);
+      } else {
+        errorDiv.textContent = data.error || 'Signup failed.';
+        messageDiv.textContent = '';
+      }
+    } catch (err) {
+      errorDiv.textContent = 'Error signing up.';
+      messageDiv.textContent = '';
+    }
+  }
+});
+
+resendLink.addEventListener('click', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+
+  if (!email) {
+    alert('Enter your email first.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      messageDiv.textContent = 'OTP resent successfully!';
+      errorDiv.textContent = '';
+    } else {
+      errorDiv.textContent = data.error;
+      messageDiv.textContent = '';
+    }
+  } catch (err) {
+    errorDiv.textContent = 'Failed to resend OTP.';
+    messageDiv.textContent = '';
+  }
+});
+
+  </script>
+</body>
+</html>

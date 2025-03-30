@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sell or Rent Property | Room on Rent</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #fff;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .main-div {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 20px;
+      position: relative;
+    }
+
+    .main-div::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+    }
+
+    .form-div {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 700px;
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 1s ease-in-out;
+      transition: all 0.3s ease;
+    }
+
+    .heading {
+      font-size: 2.2rem;
+      text-align: center;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    .sub-heading {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      color: #f1f1f1;
+    }
+
+    .sub-heading-span {
+      color: #ff6363;
+    }
+
+    h2.personal-detail {
+      margin-top: 30px;
+      margin-bottom: 10px;
+      font-size: 1.4rem;
+      color: #ffffff;
+    }
+
+    .rdo-btn {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .rdo-btn input[type="radio"] {
+      margin-right: 5px;
+    }
+
+    .rdo-btn label {
+      transition: transform 0.2s ease, color 0.3s ease;
+    }
+
+    .rdo-btn label:hover {
+      transform: scale(1.05);
+      color: #66ccff;
+    }
+
+    .input-box, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #000;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .input-box:focus, select:focus {
+      outline: 2px solid #007bff;
+      transform: scale(1.02);
+      box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #e0e0e0;
+    }
+
+    .checboxes label {
+      display: inline-block;
+      margin-left: 10px;
+      font-weight: normal;
+      font-size: 0.95rem;
+      color: #e2e2e2;
+    }
+
+    input[type="checkbox"] {
+      height: 18px;
+      width: 18px;
+      accent-color: #007bff;
+    }
+
+    .log-post-btn {
+      display: block;
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    #description{
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #000;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .log-post-btn:hover {
+      background-color: #0056b3;
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body>
+  <div class="main-div">
+    <div class="form-div">
+      <form>
+        <h1 class="heading">Sell or Rent your Property</h1>
+        <!-- <p class="sub-heading">
+          You are posting this property for
+          <span class="sub-heading-span"><b>FREE!</b></span>
+        </p> -->
+
+        <h2 class="personal-detail">Personal Details</h2>
+
+        <label>I am</label>
+        <div class="rdo-btn">
+          <label><input type="radio" name="person" id="Owner" /> Owner</label>
+          <label><input type="radio" name="person" id="Agent" /> Agent</label>
+          <label><input type="radio" name="person" id="Builder" /> Builder</label>
+        </div>
+
+        <label for="name">Name</label>
+        <input class="input-box" type="text" id="name" placeholder="Enter your name" />
+
+        <label for="mobile">Mobile No.</label>
+        <input class="input-box" type="text" id="mobile" placeholder="Enter your Mobile No." />
+
+        <label for="email">Email</label>
+        <input class="input-box" type="text" id="email" placeholder="Enter your Email" />
+
+        <h2 class="personal-detail">Property Details</h2>
+
+        <label>For</label>
+        <div class="rdo-btn">
+          <!-- <label><input type="radio" name="property" id="Sale" /> Sale</label> -->
+          <label><input type="radio" name="property" id="RentLease" /> Rent/Lease</label>
+          <label><input type="radio" name="property" id="PGHostel" /> PG/Hostel</label>
+        </div>
+        <textarea name="description" id="description" placeholder="Details of your property"></textarea>
+
+        <label for="propertyType">Property Type</label>
+        <select class="input-box" id="propertyType">
+          <option>Select Property Type</option>
+          <option>All Residential</option>
+          <option>Flat Apartment</option>
+          <option>Villa</option>
+          <option>Residential House</option>
+          <option>All Commercial</option>
+          <option>Warehouse</option>
+          <option>Commercial Office Space</option>
+          <option>Commercial Shop</option>
+          <option>All Agriculture</option>
+          <option>Farm House</option>
+        </select>
+
+        <label>Upload images or videos</label>
+        <input type="file" accept="video/*,image/*" class="input-box" />
+
+        <h2 class="personal-detail">Property Location</h2>
+
+        <label for="city">City</label>
+        <input class="input-box" type="text" id="city" placeholder="Enter City" />
+
+        <label for="locality">Locality</label>
+        <input class="input-box" type="text" id="locality" placeholder="Enter Locality" />
+
+        <div class="checboxes">
+          <input type="checkbox" id="info1" />
+          <label for="info1">I am posting this property 'exclusively' on Room On Rent</label>
+          <br /><br />
+          <input type="checkbox" id="info2" />
+          <label for="info2">I agree to T&C, Privacy Policy, & Cookie Policy</label>
+          <br /><br />
+          <input type="checkbox" id="info3" />
+          <label for="info3">I want to receive responses on WhatsApp</label>
+        </div>
+
+        <button class="log-post-btn">Post Property</button>
+      </form>
+    </div>
+  </div>
+</body>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector(".log-post-btn").addEventListener("click", async (event) => {
+      event.preventDefault(); // Prevent form from refreshing the page
+
+      // Capture form data
+      const formData = {
+        person: document.querySelector('input[name="person"]:checked')?.id || "",
+        name: document.getElementById("name").value,
+        mobile: document.getElementById("mobile").value,
+        email: document.getElementById("email").value,
+        propertyFor: document.querySelector('input[name="property"]:checked')?.id || "",
+        description: document.getElementById("description").value,
+        propertyType: document.getElementById("propertyType").value,
+        city: document.getElementById("city").value,
+        locality: document.getElementById("locality").value,
+        exclusive: document.getElementById("info1").checked,
+        agreeTerms: document.getElementById("info2").checked,
+        whatsappConsent: document.getElementById("info3").checked,
+      };
+
+      console.log("Form Data:", formData); // Debugging in console
+
+      // Send JSON data to backend
+      try {
+        const response = await fetch("/auth", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert("Property listed successfully!");
+          window.location.href = "index.html"; // Redirect after successful submission
+        } else {
+          alert("Error: " + result.message);
+        }
+      } catch (error) {
+        console.error("Error sending data:", error);
+        alert("Failed to send data. Try again later.");
+      }
+    });
+  });
+</script>
+
+</html>

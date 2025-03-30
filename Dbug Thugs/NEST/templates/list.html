@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sell or Rent Property | Room on Rent</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #fff;
+    }
+
+    .main-div {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 20px;
+      position: relative;
+    }
+
+    .form-div {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 700px;
+      backdrop-filter: blur(10px);
+    }
+
+    .heading {
+      font-size: 2.2rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .input-box, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #000;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+
+    .gallery img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      margin: 10px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.1);
+    }
+
+    .log-post-btn {
+      display: block;
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      padding: 14px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .log-post-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #007bff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="main-div">
+  <div class="form-div">
+    <h1 class="heading">Sell or Rent Your Property</h1>
+
+    <!-- ✅ Upload Form -->
+    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+      <label>I am</label>
+      <label><input type="radio" name="person" value="Owner" /> Owner</label>
+      <label><input type="radio" name="person" value="Agent" /> Agent</label>
+      <label><input type="radio" name="person" value="Builder" /> Builder</label>
+
+      <label for="name">Name</label>
+      <input class="input-box" type="text" id="name" name="name" placeholder="Enter your name" required />
+
+      <!-- ✅ Gender Selection -->
+      <label>Gender</label>
+      <label><input type="radio" name="gender" value="Male" /> Male</label>
+      <label><input type="radio" name="gender" value="Female" /> Female</label>
+      <label><input type="radio" name="gender" value="Other" /> Other</label>
+
+      <!-- ✅ Age Input -->
+      <label for="age">Age</label>
+      <input class="input-box" type="number" id="age" name="age" placeholder="Enter your age" required />
+
+      <label for="mobile">Mobile No.</label>
+      <input class="input-box" type="text" id="mobile" name="mobile" placeholder="Enter your Mobile No." required />
+
+      <label>For</label>
+      <label><input type="radio" name="property" value="Rent/Lease" /> Rent/Lease</label>
+      <label><input type="radio" name="property" value="PG/Hostel" /> PG/Hostel</label>
+
+      <label for="propertyType">Property Type</label>
+      <select class="input-box" name="propertyType" id="propertyType" required>
+        <option value="">Select Property Type</option>
+        <option value="Flat">Flat</option>
+        <option value="Villa">Villa</option>
+        <option value="Commercial">Commercial</option>
+      </select>
+
+      <label for="files">Upload Images:</label>
+      <input type="file" name="files" id="files" multiple required />
+
+      <div class="loader" id="loader"></div>
+
+      <button type="submit" class="log-post-btn">Upload</button>
+      <!-- <a class="btn" href="/main.html">Upload</a> -->
+    </form>
+  </div>
+</div>
+
+</body>
+df
+</html>

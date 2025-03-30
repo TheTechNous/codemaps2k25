@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | Room Rental</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: "Segoe UI", sans-serif;
+      background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c') no-repeat center center/cover;
+    }
+
+    .homepage {
+      /* background: url('your-homepage-screenshot.jpg') no-repeat center center/cover; */
+      height: 100vh;
+      filter: blur(3px);
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box {
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      width: 420px;
+      color: #fff;
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 25px;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .login-box input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 14px;
+      background-color: #fff;
+      border: none;
+      border-radius: 8px;
+      color: #2575fc;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .login-box button:hover {
+      background-color: #e0e0e0;
+    }
+
+    .signup-link {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .signup-link a {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    /* 🔥 Fade-Out Animation */
+    .fade-out {
+      opacity: 0;
+      transition: opacity 0.8s ease-out;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Simulated Homepage Background -->
+  <div class="homepage"></div>
+
+  <!-- Login Overlay -->
+  <div class="overlay">
+    <div class="login-box">
+      <h2>Welcome Back</h2>
+      <form id="loginForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required />
+
+        <!-- <button type="submit">Login</button> -->
+        <a href="/main">login</a>
+
+        <div class="signup-link">
+          Don't have an account? <a href="/signup">Sign Up</a>
+        </div>
+
+        <div class="message" id="messageBox"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+const messageBox = document.getElementById("messageBox");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = form.email.value;
+  const password = form.password.value;
+
+  const res = await fetch("/auth", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password
+    }),
+  });
+
+  const data = await res.json();
+
+  messageBox.textContent = data.message || data.error;
+  messageBox.style.color = data.success ? "lightgreen" : "salmon";
+
+  if (data.success) {
+    // 🔥 Fade-Out Effect Before Redirect
+    document.body.classList.add("fade-out");
+
+    // 🔥 Store Session in LocalStorage
+    localStorage.setItem("user", JSON.stringify({ email }));
+
+    setTimeout(() => {
+      window.location.href = "/main"; // Redirect to main page after successful login
+    }, 800);
+  }
+});
+
+  </script>
+
+</body>
+</html>

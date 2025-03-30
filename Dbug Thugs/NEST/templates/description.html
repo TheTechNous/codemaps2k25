@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room Description | Nest Rentals</title>
+  <style>
+    /* Basic Styling for Room Description */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #1f1c2c;
+      color: #f9d923;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    .room-detail {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .room-detail img {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 10px;
+    }
+
+    .room-detail h2 {
+      font-size: 2rem;
+      color: #f9d923;
+    }
+
+    .room-detail p {
+      font-size: 1rem;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    .price {
+      font-size: 1.5rem;
+      color: #00c9a7;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .owner-info {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .contact-btn {
+      margin-top: 20px;
+      padding: 12px 25px;
+      background-color: #f9d923;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .contact-btn:hover {
+      background-color: #f9c400;
+    }
+
+    .image-gallery {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .image-gallery img {
+      width: 200px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Room Description</h1>
+  </header>
+
+  <div class="container">
+    <div class="room-detail" id="room-detail">
+      <!-- Room details will be inserted here -->
+    </div>
+    <div class="image-gallery" id="image-gallery">
+      <!-- Images will be inserted here -->
+    </div>
+  </div>
+
+  <script>
+    // Get the roomId from the query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomId = urlParams.get('roomId');
+
+    if (roomId) {
+      // Fetch the room details from the backend based on roomId
+      fetch(`/api/rooms/${roomId}`)
+        .then(response => response.json())
+        .then(room => {
+          const roomDetailElement = document.getElementById('room-detail');
+          const imageGalleryElement = document.getElementById('image-gallery');
+          
+          // Set the content for the room detail page
+          roomDetailElement.innerHTML = `
+            <h2>${room.title}</h2>
+            <p>${room.description}</p>
+            <div class="price">${room.price}</div>
+            <div class="owner-info">Owner: ${room.owner}</div>
+            <div class="owner-info">Contact: ${room.contact}</div>
+            <button class="contact-btn" onclick="alert('Contacting owner...')">Contact Owner</button>
+          `;
+
+          // Insert the images into the gallery
+          room.images.forEach(imageUrl => {
+            const imgElement = document.createElement('img');
+            imgElement.src = imageUrl;
+            imgElement.alt = room.title;
+            imageGalleryElement.appendChild(imgElement);
+          });
+        })
+        .catch(err => {
+          console.error('Error fetching room details:', err);
+          alert('Failed to load room details. Please try again later.');
+        });
+    } else {
+      alert('Room not found!');
+    }
+  </script>
+
+</body>
+</html>
