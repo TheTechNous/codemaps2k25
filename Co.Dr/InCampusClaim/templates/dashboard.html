@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Welcome, {{ user_name }}!</h2>
+        <p class="text-muted">Here are your reported items</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('report') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Report New Item
+        </a>
+    </div>
+</div>
+
+{% if reports %}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for report in reports %}
+        <div class="col">
+            <div class="card report-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ report['item'] }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Reported on {{ report['created_at'] | datetime }}</h6>
+                    <p class="card-text">{{ report['description'] }}</p>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item"><strong>Location:</strong> {{ report['location'] }}</li>
+                        <li class="list-group-item"><strong>Contact:</strong> {{ report['contact'] }}</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-{{ 'success' if report['status'] == 'found' else 'warning' }}">
+                            {{ report['status'] | capitalize }}
+                        </span>
+                        <a href="{{ url_for('generate_qr', report_id=report['id']) }}" 
+                           class="btn btn-sm btn-outline-primary" 
+                           download="lost_item_{{ report['id'] }}.png">
+                            <i class="bi bi-qr-code"></i> Get QR Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        You haven't reported any items yet. <a href="{{ url_for('report') }}" class="alert-link">Report your first item</a>.
+    </div>
+{% endif %}
+{% endblock %}
