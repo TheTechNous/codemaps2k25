@@ -1,9 +1,7 @@
 name: Plagiarism Check
 
 on:
-  push:
-    paths:
-      - '**/'  # Trigger on any changes to directories
+  push:  # Trigger on any push
   pull_request:
     types: [opened, synchronize]
   workflow_dispatch:
@@ -125,23 +123,29 @@ jobs:
                   print(f"{Fore.RED}Error comparing {file1} and {file2}: {e}{Style.RESET_ALL}")
                   return 0
 
-          def get_team_name(path):
-              """Extract team name from path, ensuring only the top-level folder name is used"""
+          def get_main_folder_name(path):
+              """Get only the top-level folder name from a path"""
               if not path:
                   return "Unknown"
-              # Handle both Path objects and strings
-              if isinstance(path, Path):
-                  parts = path.parts
-              else:
-                  # Remove any leading ./ and split
-                  clean_path = path.lstrip('./').replace('\\', '/')
-                  parts = clean_path.split('/')
-              
-              # Get the first non-empty part (main folder name)
-              for part in parts:
-                  if part and not part.startswith('.'):
-                      return part
-              return "Unknown"
+              # Handle strings and Path objects
+              parts = path.parts if isinstance(path, Path) else Path(str(path).lstrip('./')).parts
+              # Return first non-empty part that's not a hidden folder
+              return next((p for p in parts if p and not p.startswith('.')), "Unknown")
+
+          def compare_folders(folder1, folder2, file1, file2):
+              """Compare two files and their folders"""
+              if folder1 >= folder2:  # Skip self-comparison and duplicates
+                  return None
+              similarity = check_similarity(file1, file2)
+              if similarity >= 30:  # Use 30% threshold
+                  return {
+                      'similarity': similarity,
+                      'folder1': get_main_folder_name(folder1),
+                      'folder2': get_main_folder_name(folder2),
+                      'file1': str(file1),
+                      'file2': str(file2)
+                  }
+              return None
 
           # Run plagiarism check for each language
           for lang_config in language_configs:
@@ -218,8 +222,8 @@ jobs:
                                           
                                           # Get team names from the comparison (only main folder names)
                                           team_links = cells[1:3]
-                                          team1 = get_team_name(team_links[0].get_text(strip=True))
-                                          team2 = get_team_name(team_links[1].get_text(strip=True))
+                                          team1 = get_main_folder_name(team_links[0].get_text(strip=True))
+                                          team2 = get_main_folder_name(team_links[1].get_text(strip=True))
                                           
                                           # Add to results only if teams are different
                                           if team1 != team2:
@@ -245,117 +249,33 @@ jobs:
               try:
                   print(f"{Fore.CYAN}Running custom similarity check for {lang_name}...{Style.RESET_ALL}")
                   
-                  # Group files by solution folder
-                  folder_files = collections.defaultdict(list)
+                  # Group files by main folder name
+                  folder_files = {}
                   for file in language_files:
-                      folder_name = file.parts[0]  # Get the top-level folder name
-                      folder_files[folder_name].append(file)
+                      main_folder = get_main_folder_name(file)
+                      if main_folder not in folder_files:
+                          folder_files[main_folder] = []
+                      folder_files[main_folder].append(file)
                   
-                  # Store results for file comparisons
-                  custom_results = []
-                  
-                  # For multiple folders: compare files between different folders
-                  if len(solution_folders) > 1:
-                      for folder1, files1 in folder_files.items():
-                          for folder2, files2 in folder_files.items():
-                              if folder1 >= folder2:  # Skip comparing a folder with itself
-                                  continue
-                              
-                              main_folder1 = get_team_name(folder1)
-                              main_folder2 = get_team_name(folder2)
-                              
-                              if main_folder1 == main_folder2:  # Skip if they're from the same main folder
-                                  continue
-                              
-                              # Compare each file from folder1 with each file from folder2
-                              for file1 in files1:
-                                  for file2 in files2:
-                                      similarity = check_similarity(file1, file2)
-                                      
-                                      if similarity >= 30:  # Only record significant matches
-                                          custom_results.append({
-                                              'file1': str(file1),
-                                              'file2': str(file2),
-                                              'similarity': similarity,
-                                              'folder1': main_folder1,
-                                              'folder2': main_folder2
-                                          })
-                  # For single folder: compare files within the same folder
-                  else:
-                      for folder, files in folder_files.items():
-                          # Compare files within the same folder
-                          for i, file1 in enumerate(files):
-                              for j, file2 in enumerate(files):
-                                  if i >= j:  # Skip comparing a file with itself and avoid duplicate comparisons
-                                      continue
-                                      
-                                  similarity = check_similarity(file1, file2)
-                                  
-                                  if similarity >= 30:  # Only record significant matches
-                                      # Extract relative paths for more meaningful comparison
-                                      rel_path1 = "/".join(Path(file1).parts[1:])
-                                      rel_path2 = "/".join(Path(file2).parts[1:])
-                                      
-                                      custom_results.append({
-                                          'file1': str(file1),
-                                          'file2': str(file2),
-                                          'rel_path1': rel_path1,
-                                          'rel_path2': rel_path2,
-                                          'similarity': similarity,
-                                          'folder': folder
+                  # Compare files between different main folders
+                  for folder1, files1 in folder_files.items():
+                      for folder2, files2 in folder_files.items():
+                          if folder1 >= folder2:  # Skip self-comparison
+                              continue
+                          
+                          for file1 in files1:
+                              for file2 in files2:
+                                  result = compare_folders(folder1, folder2, file1, file2)
+                                  if result:
+                                      results.append({
+                                          'language': lang_name,
+                                          'team1': result['folder1'],
+                                          'team2': result['folder2'],
+                                          'similarity': f"{result['similarity']:.1f}%",
+                                          'tool': 'Custom'
                                       })
                   
-                  # Sort results by similarity
-                  custom_results.sort(key=lambda x: x['similarity'], reverse=True)
-                  
-                  # Save the detailed results
-                  custom_results_file = output_dir / "custom_results.json"
-                  with open(custom_results_file, 'w') as f:
-                      json.dump(custom_results, f, indent=2)
-                  
-                  # Add to overall results
-                  if custom_results:
-                      if len(solution_folders) > 1:
-                          # For multiple folders: group by folder pairs
-                          folder_pairs = {}
-                          for res in custom_results:
-                              pair = (res['folder1'], res['folder2'])
-                              if pair not in folder_pairs or res['similarity'] > folder_pairs[pair]:
-                                  folder_pairs[pair] = res['similarity']
-                          
-                          for (folder1, folder2), similarity in folder_pairs.items():
-                              # Add to team plagiarism scores
-                              team_plagiarism[folder1].append(similarity)
-                              team_plagiarism[folder2].append(similarity)
-                              
-                              # Add to overall results
-                              results.append({
-                                  'language': lang_name,
-                                  'team1': folder1,
-                                  'team2': folder2,
-                                  'similarity': f"{similarity:.2f}%",
-                                  'match_url': f"{lang_name}/custom_results.json",
-                                  'tool': 'Custom'
-                              })
-                      else:
-                          # For single folder: group by file pairs
-                          # In this case we'll use relative file paths as identifiers
-                          for res in custom_results:
-                              # Add results using relative paths for clearer reporting
-                              results.append({
-                                  'language': lang_name,
-                                  'team1': res['rel_path1'],
-                                  'team2': res['rel_path2'], 
-                                  'similarity': f"{res['similarity']:.2f}%",
-                                  'match_url': f"{lang_name}/custom_results.json",
-                                  'tool': 'Custom'
-                              })
-                              
-                              # Add to file plagiarism scores
-                              file_plagiarism[res['rel_path1']].append(res['similarity'])
-                              file_plagiarism[res['rel_path2']].append(res['similarity'])
-                          
-                      print(f"{Fore.GREEN}Found {len(custom_results)} matches in custom check for {lang_name}{Style.RESET_ALL}")
+                  print(f"{Fore.GREEN}Found matches in custom check for {lang_name}{Style.RESET_ALL}")
               except Exception as e:
                   print(f"{Fore.RED}Error in custom similarity check for {lang_name}: {e}{Style.RESET_ALL}")
 
@@ -506,79 +426,55 @@ jobs:
           import re
           from pathlib import Path
           
-          def get_team_name(path):
-              """Extract team name from path, using the top-level folder name"""
-              parts = Path(path).parts
-              return parts[0] if parts else path
+          def get_main_folder_name(path):
+              """Extract only the main folder name from a path"""
+              parts = Path(str(path)).parts
+              return next((p for p in parts if p and not p.startswith('.')), path)
           
-          # Read the plagiarism results
+          # Read and process results
           try:
               with open('plagiarism_results.json', 'r') as f:
                   data = json.load(f)
-                  # Aggregate all results by team/folder
                   team_results = {}
                   
-                  # Process detailed results to get team-level scores
                   for result in data.get('detailed_results', []):
-                      team1 = get_team_name(result.get('team1', ''))
-                      team2 = get_team_name(result.get('team2', ''))
+                      team1 = get_main_folder_name(result.get('team1', ''))
+                      team2 = get_main_folder_name(result.get('team2', ''))
                       similarity = float(result.get('similarity', '0').strip('%'))
                       
-                      if team1 and not '/' in team1:
-                          if team1 not in team_results or similarity > team_results[team1]:
-                              team_results[team1] = similarity
-                      if team2 and not '/' in team2:
-                          if team2 not in team_results or similarity > team_results[team2]:
-                              team_results[team2] = similarity
-          except FileNotFoundError:
-              print("No plagiarism results found. Skipping README update.")
-              exit(0)
-          except Exception as e:
-              print(f"Error processing plagiarism results: {e}")
-              exit(1)
-          
-          # Read the current README.md
-          try:
-              with open('README.md', 'r') as f:
-                  readme_content = f.read()
-          except FileNotFoundError:
-              readme_content = "# Project Analysis\n\n"
-          
-          # Create the plagiarism results section
-          plagiarism_section = "## 📊 Plagiarism Analysis\n\n"
-          
-          if team_results:
-              # Sort teams by plagiarism percentage (highest first)
-              sorted_teams = sorted(team_results.items(), key=lambda x: x[1], reverse=True)
-              
-              for team, score in sorted_teams:
-                  status = "🚫 HIGH" if score >= 30 else "✅ LOW"
-                  plagiarism_section += f"{team} --> {score:.1f}% plagiarism detected ({status})\n\n"
-          else:
-              plagiarism_section += "No significant plagiarism detected between teams.\n\n"
-          
-          # Replace or add the plagiarism section in README
-          if "## 📊 Plagiarism Analysis" in readme_content:
-              pattern = r"## 📊 Plagiarism Analysis\n\n(?:.*\n)*?(?=##|$)"
-              readme_content = re.sub(pattern, plagiarism_section, readme_content)
-          else:
-              # Add before "Happy Coding" if it exists, otherwise append to end
-              if "## 🚀 Happy Coding!" in readme_content:
-                  readme_content = readme_content.replace("## 🚀 Happy Coding!", f"{plagiarism_section}## 🚀 Happy Coding!")
+                      # Update team scores with highest similarity
+                      if team1:
+                          team_results[team1] = max(similarity, team_results.get(team1, 0))
+                      if team2:
+                          team_results[team2] = max(similarity, team_results.get(team2, 0))
+                          
+              # Sort and format results
+              plagiarism_section = "## 📊 Plagiarism Analysis\n\n"
+              if team_results:
+                  sorted_teams = sorted(team_results.items(), key=lambda x: x[1], reverse=True)
+                  for team, score in sorted_teams:
+                      status = "🚫 HIGH" if score >= 30 else "✅ LOW"
+                      plagiarism_section += f"{team} --> {score:.1f}% plagiarism detected ({status})\n\n"
               else:
-                  readme_content += f"\n{plagiarism_section}"
-          
-          # Write the updated README
-          with open('README.md', 'w') as f:
-              f.write(readme_content)
-          
-          print("README.md updated with plagiarism results successfully!")
+                  plagiarism_section += "No significant plagiarism detected between teams.\n\n"
+              
+              # Update README
+              with open('README.md', 'r') as f:
+                  readme = f.read()
+              
+              if "## 📊 Plagiarism Analysis" in readme:
+                  readme = re.sub(r"## 📊 Plagiarism Analysis\n\n(?:.*\n)*?(?=##|$)", plagiarism_section, readme)
+              else:
+                  readme += f"\n{plagiarism_section}"
+              
+              with open('README.md', 'w') as f:
+                  f.write(readme)
+                  
+          except Exception as e:
+              print(f"Error updating README: {e}")
           EOL
           
-          # Run the update script
           python update_readme.py
-          
-          # Clean up the temporary script file
           rm -f update_readme.py
 
       - name: Commit README changes
