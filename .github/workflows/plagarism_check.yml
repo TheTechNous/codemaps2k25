@@ -259,7 +259,6 @@ jobs:
                           "-l", jplag_lang,
                           "-r", str(output_dir),
                           "-m", "0",
-                          "-s",  # Add submission mode flag
                           "-p", "files",  # Parse files mode
                       ]
                       
