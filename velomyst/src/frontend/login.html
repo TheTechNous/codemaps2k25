@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signin Site</title>
+    <link rel="stylesheet" href="css/login_style.css" />
+  </head>
+  <body>
+    <div class="main-container">
+      <div class="duck-container">
+        <img src="image/duck.png" alt="Duck Image" class="duck-image" />
+        <div class="button-container">
+          <button class="signin-btn">Signin</button>
+          <button class="signup-btn">Signup</button>
+        </div>
+      </div>
+    </div>
+    <div class="shutter-overlay" id="signin-overlay">
+      <div class="shutter left"></div>
+      <div class="shutter right"></div>
+      <div class="form-container">
+        <h2>Login</h2>
+        <input type="text" placeholder="Username" required />
+        <input type="password" placeholder="Password" required />
+        <button class="submit-btn">Submit</button>
+        <button class="close-btn">Close</button>
+      </div>
+    </div>
+    <div class="shutter-overlay" id="signup-overlay">
+      <div class="shutter left"></div>
+      <div class="shutter right"></div>
+      <div class="form-container">
+        <h2>Signup</h2>
+        <input type="text" placeholder="Username" required />
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <input type="password" placeholder="Confirm Password" required />
+        <button class="submit-btn">Register</button>
+        <button class="close-btn">Close</button>
+      </div>
+    </div>
+    <script src="js/login_script.js"></script>
+  </body>
+</html>

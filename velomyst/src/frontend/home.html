@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
+    <title>Quack</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');</style>
+</head>
+
+<body>
+    <a href="blog_editor.html" class="editor-button">
+        <span style="font-weight: bolder; font-size: 3rem; text-decoration: none; color: white;">+</span>
+    </a>
+    <nav>
+        <ul class="sidebar">
+            <li onclick="closeSidebar()"><a href="#"><i class="ri-close-line"></i></a></li>
+            <li><a href="home.html">Quack</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+        <ul>
+            <li><a href="home.html"><img src="image/logo.png"></a></li>
+            <li class="hideOnMobile"><a href="about.html">About</a></li>
+            <li class="hideOnMobile"><a href="#"></a></li>
+            <li class="hideOnMobile"><a href="login.html">Login</a></li>
+            <li onclick="showSidebar()"><a href="#"><i class="ri-menu-line"></i></a></li>
+        </ul>
+    </nav>
+    
+    <main class="main">
+        <section class="home">
+            <div class="home-container container">
+                <h1 class="home-title">
+                    Get your daily dose of <span>feathered</span> insights
+                </h1>
+                <p class="home-description">
+                    where ideas take flight! Explore fresh insights, share your thoughts, and be part of a community that inspires.<br>
+                    Don’t just read—quack with us!
+                </p>
+            </div>
+            <div class="home-images">
+                <img src="image/circle.png" class="home-circle">
+                <div class="ducky-animate">
+                    <img src="image/ducky.png" class="home-duck">
+                </div>
+            </div>
+        </section>
+
+        <!-- 
+        - #FEATURED POST
+      -->
+
+      <section class="section featured" aria-label="featured post">
+        <div class="container">
+
+          <p class="section-subtitle">
+            The  <strong class="strong">feathered</strong> column
+          </p>
+
+          <ul class="has-scrollbar">
+
+            <li class="scrollbar-item">
+              <div class="blog-card">
+
+                <figure class="card-banner img-holder" style="--width: 500; --height: 600;">
+                  <img src="image/travel.jpeg" width="500" height="600" loading="lazy"
+                    alt="New technology is not good or evil in and of itself" class="img-cover">
+
+                </figure>
+
+                <div class="card-content">
+
+                  <ul class="card-meta-list">
+
+                    <li>
+                      <a href="#" class="card-tag">Adventure</a>
+                    </li>
+
+                    <li>
+                      <a href="#" class="card-tag">travel</a>
+                    </li>
+                  </ul>
+
+                  <h3 class="h4">
+                    <a href="#" class="card-title hover:underline">
+                    Lost & Found: My Wildest Solo Travel Adventures
+                    </a>
+                  </h3>
+
+                  <p class="card-text">
+                   Dive into the thrill of the unknown with me as I share heart-pumping, hilarious, and sometimes downright bizarre stories from my solo travels.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li class="scrollbar-item">
+              <div class="blog-card">
+
+                <figure class="card-banner img-holder" style="--width: 500; --height: 600;">
+                  <img src="image/happy.jpeg" width="500" height="600" loading="lazy"
+                    alt="It’s a new era in design, there are no rules" class="img-cover">
+
+                  <ul class="avatar-list absolute">
+
+            
+
+                  </ul>
+                </figure>
+
+                <div class="card-content">
+
+                  <ul class="card-meta-list">
+
+                    <li>
+                      <a href="#" class="card-tag">Self-help</a>
+                    </li>
+
+                    <li>
+                      <a href="#" class="card-tag">Pshycology</a>
+                    </li>
+
+                  </ul>
+
+                  <h3 class="h4">
+                    <a href="#" class="card-title hover:underline">
+                        The Happiness Lab
+                    </a>
+                  </h3>
+
+                  <p class="card-text">
+                    Explore the science and art of happiness with me, from practical tips and tricks to inspiring stories and insights. 
+                    Learn from my personal experiences and from those of my students.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li class="scrollbar-item">
+              <div class="blog-card">
+
+                <figure class="card-banner img-holder" style="--width: 500; --height: 600;">
+                  <img src="image/art.jpeg" width="500" height="600" loading="lazy"
+                    alt="Perfection has to do with the end product" class="img-cover">
+
+                  
+                </figure>
+
+                <div class="card-content">
+
+                  <ul class="card-meta-list">
+
+                    <li>
+                      <a href="#" class="card-tag">Design</a>
+                    </li>
+
+                    <li>
+                      <a href="#" class="card-tag">Creative</a>
+                    </li>
+
+                    <li>
+                      <a href="#" class="card-tag">Idea</a>
+                    </li>
+
+                  </ul>
+
+                  <h3 class="h4">
+                    <a href="#" class="card-title hover:underline">
+                       A sneak peek of my Creative Cave
+                    </a>
+                  </h3>
+
+                  <p class="card-text">
+                    My studio is a reflection of my mind – a whirlwind of colors, textures, and ideas. Canvases lean against walls, paint-splattered easels stand tall, and scraps of paper litter the floor. It's a space where creativity knows no bounds, and inspiration lurks around every corner.
+
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li class="scrollbar-item">
+              <div class="blog-card">
+
+                <figure class="card-banner img-holder" style="--width: 500; --height: 600;">
+                  <img src="image/cyber.jpeg" width="500" height="600" loading="lazy"
+                    alt="Everyone has a different life story" class="img-cover">
+
+                  
+                </figure>
+
+                <div class="card-content">
+
+                  <ul class="card-meta-list">
+
+                    <li>
+                      <a href="#" class="card-tag">Tech</a>
+                    </li>
+
+                    <li>
+                      <a href="#" class="card-tag">Digital wellbeing</a>
+                    </li>
+
+                  </ul>
+
+                  <h3 class="h4">
+                    <a href="#" class="card-title hover:underline">
+                        Cybersecurity 101: Protecting Yourself in the Digital Age
+
+                    </a>
+                  </h3>
+
+                  <p class="card-text">
+                    With the rise of cyber threats and attacks, it's essential to understand the risks and take steps to safeguard yourself.
+                     By following simple best practices  you can significantly reduce the risk of falling victim to cyber threats.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li class="scrollbar-item">
+              <div class="blog-card">
+
+                <figure class="card-banner img-holder" style="--width: 500; --height: 600;">
+                  <img src="image/mental.jpeg" width="500" height="600" loading="lazy"
+                    alt="The difference is quality" class="img-cover">
+
+                  
+                </figure>
+
+                <div class="card-content">
+
+                  <ul class="card-meta-list">
+
+                    <li>
+                      <a href="#" class="card-tag">Pshycology</a>
+                    </li>
+
+                  </ul>
+
+                  <h3 class="h4">
+                    <a href="#" class="card-title hover:underline">
+                        Mental Health Matters
+                    </a>
+                  </h3>
+
+                  <p class="card-text">
+                    Mental health matters, and it's time to break the silence. 
+                    By acknowledging the importance of mental wellness, we can take the first step towards healing. 
+                    This blog explores  insights to help you nurture your mind, challenge stigmas, and cultivate a culture of compassion and understanding.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li class="scrollbar-item">
+              <div class="blog-card">
+
+                <figure class="card-banner img-holder" style="--width: 500; --height: 600;">
+                  <img src="image/choco.jpeg" width="500" height="600" loading="lazy"
+                    alt="Problems are not stop signs, they are guidelines" class="img-cover">
+
+                </figure>
+
+                <div class="card-content">
+
+                  <ul class="card-meta-list">
+
+                    <li>
+                      <a href="#" class="card-tag">Idea</a>
+                    </li>
+
+                    <li>
+                      <a href="#" class="card-tag">Creating</a>
+                    </li>
+
+                  </ul>
+
+                  <h3 class="h4">
+                    <a href="#" class="card-title hover:underline">
+                      Vegan chocolate chip cookie
+                    </a>
+                  </h3>
+
+                  <p class="card-text">
+                    Indulge in the richness of vegan chocolate chip cookies, made with love and plant-based goodness. These chewy treats are crafted with dairy-free chocolate chips, wholesome ingredients, and a dash of sweetness. Perfect for satisfying your sweet tooth while staying true to your vegan values.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+          </ul>
+
+        </div>
+      </section>
+
+
+
+        
+    </main>
+
+    <script>
+        function showSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.style.display = 'flex';
+        }
+        function closeSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

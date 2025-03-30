@@ -1,0 +1,150 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f0f0;
+}
+
+.main-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.duck-container {
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  width: 300px;
+}
+
+.duck-image {
+  width: 80%;
+  height: auto;
+  margin-bottom: 20px;
+  margin-left: 10%;
+}
+
+.button-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.signin-btn,
+.signup-btn {
+  width: 30%;
+  height: 50px;
+  font-size: 18px;
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.signin-btn:hover,
+.signup-btn:hover {
+  background-color: #3e8e41;
+}
+
+.shutter-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.shutter {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  background: #333;
+  transition: transform 0.8s ease-in-out;
+}
+
+.shutter.left {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.shutter.right {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.form-container {
+  position: relative;
+  background: white;
+  padding: 40px;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  width: 400px;
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+}
+
+.form-container input {
+  display: block;
+  width: 100%;
+  margin: 15px 0;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.submit-btn,
+.close-btn {
+  padding: 12px 20px;
+  margin-top: 15px;
+  border: none;
+  background: #4caf50;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.close-btn {
+  background: red;
+}
+
+.shutter-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.shutter-overlay.active .shutter.left {
+  transform: translateX(0);
+}
+
+.shutter-overlay.active .shutter.right {
+  transform: translateX(0);
+}
+
+.shutter-overlay.active .form-container {
+  transform: scale(1);
+  opacity: 1;
+}

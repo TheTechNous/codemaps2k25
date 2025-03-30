@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blogging Editor</title>
+    <link rel="stylesheet" href="css/editor_style.css" />
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.core.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="editor-container">
+      <div class="box heading-box">
+        <input
+          type="text"
+          id="heading"
+          placeholder="Enter blog heading"
+          maxlength="50"
+        />
+      </div>
+      <div class="box summary-box">
+        <input
+          type="text"
+          id="summary"
+          placeholder="Enter blog summary"
+          maxlength="200"
+        />
+        <input type="file" id="image" accept="image/*" maxlength="2097152" />
+        <img id="preview" src="" alt="Image preview" />
+      </div>
+      <div class="box content-box">
+        <div id="editor"></div>
+      </div>
+      <button id="save-button">Save Post</button>
+      <div id="loader" style="display: none">Loading...</div>
+    </div>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.core.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="js/editor_script.js"></script>
+  </body>
+</html>
