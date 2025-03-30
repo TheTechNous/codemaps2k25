@@ -254,20 +254,14 @@ jobs:
               # Method 1: Use JPlag if we have multiple solution folders
               if len(solution_folders) > 1:
                   try:
-                      # Run JPlag with correct parameters
-                      cmd = [
-                          "java", "-jar", "jplag.jar",
-                          "-l", jplag_lang,
-                          "-r", str(output_dir),
-                          "-m", "0",
-                          "-p", "files",  # Parse files mode
-                      ]
-                      
                       # Create separate directories for each language to avoid conflicts
                       lang_dir = Path("temp_jplag_files") / lang_name
                       if lang_dir.exists():
                           shutil.rmtree(lang_dir)
                       lang_dir.mkdir(parents=True, exist_ok=True)
+                      
+                      # Keep track of valid teams for JPlag
+                      valid_teams = set()
                       
                       # Copy only relevant files to the language directory
                       for file in language_files:
@@ -275,19 +269,43 @@ jobs:
                               # Create destination folder maintaining relative structure
                               rel_path = file.relative_to(Path('.'))
                               team_folder = get_main_folder_name(file)
-                              dest_file = lang_dir / team_folder / rel_path.name
-                              dest_file.parent.mkdir(parents=True, exist_ok=True)
+                              
+                              # Ensure the team name is valid for JPlag (no spaces or special chars)
+                              safe_team = re.sub(r'[^a-zA-Z0-9_]', '_', team_folder)
+                              
+                              # Create team subdirectory
+                              team_dir = lang_dir / safe_team
+                              team_dir.mkdir(parents=True, exist_ok=True)
+                              
+                              # Create a unique filename to avoid collisions
+                              file_hash = hashlib.md5(str(file).encode()).hexdigest()[:8]
+                              dest_file = team_dir / f"{rel_path.stem}_{file_hash}{rel_path.suffix}"
+                              
+                              # Copy the file
                               shutil.copy2(file, dest_file)
+                              valid_teams.add(safe_team)
+                              
                           except Exception as e:
                               print(f"{Fore.RED}Error copying file {file}: {e}{Style.RESET_ALL}")
                               continue
                       
-                      # Add language directory to command
-                      cmd.append(str(lang_dir))
+                      # Skip JPlag if we don't have enough valid teams
+                      if len(valid_teams) < 2:
+                          print(f"{Fore.YELLOW}Not enough valid teams for {lang_name} (need at least 2). Skipping JPlag.{Style.RESET_ALL}")
+                          continue
+                          
+                      # Run JPlag with correct parameters
+                      cmd = [
+                          "java", "-jar", "jplag.jar",
+                          "-l", jplag_lang,
+                          "-r", str(output_dir),
+                          "-m", "0",  # Minimum match length
+                          str(lang_dir)  # Input directory containing all team folders
+                      ]
                       
                       # Print the exact command that will be run
                       cmd_str = ' '.join(cmd)
-                      print(f"{Fore.CYAN}Checking for plagiarism in {file_count} {lang_name} files...{Style.RESET_ALL}")
+                      print(f"{Fore.CYAN}Checking for plagiarism in {file_count} {lang_name} files across {len(valid_teams)} teams...{Style.RESET_ALL}")
                       print(f"Running JPlag: {cmd_str}")
                       
                       # Run JPlag with verbose output
