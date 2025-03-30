@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}Report Item{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="text-center mb-4">Report Lost/Found Item</h2>
+    <form method="POST" action="{{ url_for('report') }}">
+        <div class="mb-3">
+            <label for="item" class="form-label">Item Name</label>
+            <input type="text" class="form-control" id="item" name="item" placeholder="e.g., Water Bottle, Wallet, Keys" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="location" name="location" placeholder="Where was it lost/found?" required>
+        </div>
+        <div class="mb-3">
+            <label for="contact" class="form-label">Contact Information</label>
+            <input type="text" class="form-control" id="contact" name="contact" placeholder="How can people reach you?" required>
+        </div>
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Submit Report</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

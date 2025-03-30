@@ -1,0 +1,219 @@
+{% extends "layout.html" %}
+
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-8 mx-auto text-center">
+    <h1 class="display-4 mb-4">Welcome to Lost & Found System</h1>
+    <p class="lead mb-5">Report lost items or help others find their belongings in our community.</p>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <i class="bi bi-search-heart fs-1 text-primary mb-3"></i>
+            <h3 class="card-title">Lost Something?</h3>
+            <p class="card-text">Generate a QR code for your lost item to help people identify it.</p>
+            {% if 'user_id' in session %}
+              <a href="{{ url_for('dashboard') }}" class="btn btn-primary mb-2">View Your Reports</a>
+              <p class="small text-muted">QR codes are available for each report in your dashboard</p>
+            {% else %}
+              <a href="{{ url_for('login') }}" class="btn btn-primary">Login to Report</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <i class="bi bi-check-circle fs-1 text-success mb-3"></i>
+            <h3 class="card-title">Found Something?</h3>
+            <p class="card-text">Scan the item's QR code to verify its owner.</p>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#scanModal">
+              <i class="bi bi-qr-code-scan"></i> Scan QR Code
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR Scanner Modal -->
+<div class="modal fade" id="scanModal" tabindex="-1" aria-labelledby="scanModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="scanModalLabel">Scan QR Code</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="alert alert-info mb-3" id="camera-alert"></div>
+        <div id="scanner-container" style="position: relative; width: 100%; min-height: 400px; background: #000;">
+          <video id="qr-video" width="100%" style="display: none;"></video>
+          <canvas id="qr-canvas" style="display: none;"></canvas>
+          <div id="scanner-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; color: white;">
+            <div class="text-center">
+              <i class="bi bi-camera" style="font-size: 3rem;"></i>
+              <p class="mt-2">Camera not active</p>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex flex-wrap justify-content-center gap-2 my-3">
+          <button class="btn btn-primary" id="start-scanner"><i class="bi bi-camera"></i> Start Camera</button>
+          <button class="btn btn-danger" id="stop-scanner" style="display: none;"><i class="bi bi-camera-video-off"></i> Stop Camera</button>
+          <button class="btn btn-success" id="scan-from-file"><i class="bi bi-upload"></i> Upload Image</button>
+          <input type="file" id="qr-file" accept="image/*" style="display: none;">
+        </div>
+        <div id="qr-result" class="mt-3" style="display: none;">
+          <div id="item-details" class="text-start"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // DOM Elements
+  const video = document.getElementById('qr-video');
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  const startBtn = document.getElementById('start-scanner');
+  const stopBtn = document.getElementById('stop-scanner');
+  const fileBtn = document.getElementById('scan-from-file');
+  const fileInput = document.getElementById('qr-file');
+  const resultDiv = document.getElementById('qr-result');
+  const itemDetails = document.getElementById('item-details');
+  const scannerOverlay = document.getElementById('scanner-overlay');
+  const alertBox = document.getElementById('camera-alert');
+  let stream = null;
+  let scanning = false;
+
+  // Initialize when modal opens
+  document.getElementById('scanModal').addEventListener('shown.bs.modal', function() {
+    alertBox.style.display = 'none';
+    checkCameraPermissions();
+  });
+
+  // Cleanup when modal closes
+  document.getElementById('scanModal').addEventListener('hidden.bs.modal', function() {
+    stopCamera();
+    resultDiv.style.display = 'none';
+  });
+
+  // Check camera permissions
+  async function checkCameraPermissions() {
+    try {
+      if (navigator.permissions) {
+        const permission = await navigator.permissions.query({ name: 'camera' });
+        if (permission.state === 'denied') {
+          showAlert('Camera access was denied. Please enable camera permissions in your browser settings.', 'danger');
+          return;
+        }
+      }
+      startCamera(); // Proceed to start camera if permission is granted or API not supported
+    } catch (e) {
+      console.log('Permission API not supported');
+      startCamera(); // Proceed if there's no support for permission API
+    }
+  }
+
+  // Start camera
+  async function startCamera() {
+    try {
+      showAlert('Initializing camera...', 'info');
+      const constraints = {
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      };
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject = stream;
+      video.style.display = 'block';
+      scannerOverlay.style.display = 'none';
+
+      video.onloadedmetadata = () => {
+        video.play().then(() => {
+          startBtn.style.display = 'none';
+          stopBtn.style.display = 'inline-block';
+          scanning = true;
+          scanFrame();
+          showAlert('Camera ready. Point at QR code to scan.', 'success');
+        }).catch(err => {
+          showAlert('Could not start video: ' + err.message, 'danger');
+        });
+      };
+    } catch (err) {
+      console.error('Camera error:', err);
+      showAlert('Could not access camera: ' + err.message, 'danger');
+      startBtn.style.display = 'inline-block';
+      stopBtn.style.display = 'none';
+    }
+  }
+
+  // Stop camera
+  function stopCamera() {
+    if (stream) {
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
+      video.style.display = 'none';
+      startBtn.style.display = 'inline-block';
+      stopBtn.style.display = 'none';
+    }
+  }
+
+  // Handle file input for QR code
+  fileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const image = new Image();
+        image.src = e.target.result;
+        image.onload = function() {
+          const code = jsQR(image, image.width, image.height);
+          if (code) {
+            displayResult(code);
+          } else {
+            showAlert('QR Code not found in the image', 'danger');
+          }
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Scan a frame of the video
+  function scanFrame() {
+    if (!scanning) return;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, canvas.width, canvas.height);
+    if (code) {
+      displayResult(code);
+    } else {
+      requestAnimationFrame(scanFrame);
+    }
+  }
+
+  // Display QR code scan result
+  function displayResult(code) {
+    resultDiv.style.display = 'block';
+    itemDetails.innerHTML = `<strong>Item ID:</strong> ${code.data}`;
+    stopCamera();  // Stop camera after successful scan
+  }
+
+  // Show alerts
+  function showAlert(message, type) {
+    alertBox.style.display = 'block';
+    alertBox.className = `alert alert-${type} mb-3`;
+    alertBox.textContent = message;
+  }
+});
+</script>
+{% endblock %}
