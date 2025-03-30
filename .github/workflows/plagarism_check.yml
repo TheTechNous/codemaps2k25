@@ -1,6 +1,9 @@
 name: Plagiarism Check
 
 on:
+  push:
+    paths:
+      - '**/'  # Trigger on any changes to directories
   pull_request:
     types: [opened, synchronize]
   workflow_dispatch:
@@ -122,6 +125,24 @@ jobs:
                   print(f"{Fore.RED}Error comparing {file1} and {file2}: {e}{Style.RESET_ALL}")
                   return 0
 
+          def get_team_name(path):
+              """Extract team name from path, ensuring only the top-level folder name is used"""
+              if not path:
+                  return "Unknown"
+              # Handle both Path objects and strings
+              if isinstance(path, Path):
+                  parts = path.parts
+              else:
+                  # Remove any leading ./ and split
+                  clean_path = path.lstrip('./').replace('\\', '/')
+                  parts = clean_path.split('/')
+              
+              # Get the first non-empty part (main folder name)
+              for part in parts:
+                  if part and not part.startswith('.'):
+                      return part
+              return "Unknown"
+
           # Run plagiarism check for each language
           for lang_config in language_configs:
               lang_name = lang_config["name"]
@@ -195,27 +216,26 @@ jobs:
                                           similarity_text = similarity_cell.get_text(strip=True)
                                           similarity_value = float(similarity_text.replace('%', ''))
                                           
-                                          # Get team names from the comparison
+                                          # Get team names from the comparison (only main folder names)
                                           team_links = cells[1:3]
-                                          team1 = team_links[0].get_text(strip=True).split('/')[0]
-                                          team2 = team_links[1].get_text(strip=True).split('/')[0]
+                                          team1 = get_team_name(team_links[0].get_text(strip=True))
+                                          team2 = get_team_name(team_links[1].get_text(strip=True))
                                           
-                                          # Get link to the detailed comparison
-                                          comparison_link = team_links[0].find('a')['href'] if team_links[0].find('a') else ""
-                                          
-                                          # Add to team plagiarism scores
-                                          team_plagiarism[team1].append(similarity_value)
-                                          team_plagiarism[team2].append(similarity_value)
-                                          
-                                          # Add to results
-                                          results.append({
-                                              'language': lang_name,
-                                              'team1': team1,
-                                              'team2': team2,
-                                              'similarity': f"{similarity_value}%",
-                                              'match_url': f"{lang_name}/{comparison_link}",
-                                              'tool': 'JPlag'
-                                          })
+                                          # Add to results only if teams are different
+                                          if team1 != team2:
+                                              # Add to team plagiarism scores
+                                              team_plagiarism[team1].append(similarity_value)
+                                              team_plagiarism[team2].append(similarity_value)
+                                              
+                                              # Add to results
+                                              results.append({
+                                                  'language': lang_name,
+                                                  'team1': team1,
+                                                  'team2': team2,
+                                                  'similarity': f"{similarity_value}%",
+                                                  'match_url': f"{lang_name}/jplag_results.html",
+                                                  'tool': 'JPlag'
+                                              })
                               else:
                                   print(f"{Fore.YELLOW}No JPlag results found for {lang_name}.{Style.RESET_ALL}")
                   except Exception as e:
@@ -238,7 +258,13 @@ jobs:
                   if len(solution_folders) > 1:
                       for folder1, files1 in folder_files.items():
                           for folder2, files2 in folder_files.items():
-                              if folder1 >= folder2:  # Skip comparing a folder with itself and avoid duplicate comparisons
+                              if folder1 >= folder2:  # Skip comparing a folder with itself
+                                  continue
+                              
+                              main_folder1 = get_team_name(folder1)
+                              main_folder2 = get_team_name(folder2)
+                              
+                              if main_folder1 == main_folder2:  # Skip if they're from the same main folder
                                   continue
                               
                               # Compare each file from folder1 with each file from folder2
@@ -251,8 +277,8 @@ jobs:
                                               'file1': str(file1),
                                               'file2': str(file2),
                                               'similarity': similarity,
-                                              'folder1': folder1,
-                                              'folder2': folder2
+                                              'folder1': main_folder1,
+                                              'folder2': main_folder2
                                           })
                   # For single folder: compare files within the same folder
                   else:
@@ -373,7 +399,7 @@ jobs:
               
               print(f"\n{Fore.CYAN}Plagiarism Summary:{Style.RESET_ALL}")
               for item, score in plagiarism_max.items():
-                  status = f"{Fore.GREEN}Low" if score < 30 else f"{Fore.YELLOW}Medium" if score < 70 else f"{Fore.RED}High"
+                  status = f"{Fore.RED}HIGH" if score >= 30 else f"{Fore.GREEN}LOW"
                   print(f"{item}: {status} ({score}%){Style.RESET_ALL}")
           else:
               print(f"\n{Fore.GREEN}No plagiarism detected!{Style.RESET_ALL}")
@@ -526,7 +552,7 @@ jobs:
               sorted_teams = sorted(team_results.items(), key=lambda x: x[1], reverse=True)
               
               for team, score in sorted_teams:
-                  status = "🚫 HIGH" if score >= 70 else "⚠️ MEDIUM" if score >= 30 else "✅ LOW"
+                  status = "🚫 HIGH" if score >= 30 else "✅ LOW"
                   plagiarism_section += f"{team} --> {score:.1f}% plagiarism detected ({status})\n\n"
           else:
               plagiarism_section += "No significant plagiarism detected between teams.\n\n"
@@ -599,7 +625,7 @@ jobs:
                 
                 if (sortedTeams.length > 0) {
                   sortedTeams.forEach(([team, score]) => {
-                    const status = score >= 70 ? "🚫 HIGH" : score >= 30 ? "⚠️ MEDIUM" : "✅ LOW";
+                    const status = score >= 30 ? "🚫 HIGH" : "✅ LOW";
                     comment += `${team} --> ${score.toFixed(1)}% plagiarism detected (${status})\n\n`;
                   });
                 } else {
